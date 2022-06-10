@@ -1,0 +1,162 @@
+<% @page_title = "Edit Media - Mobdub" %>
+<% options = @video.merged_options %>
+
+<div id="itemMain" style="width:730px">
+  <div id="menu">
+    <%= render :partial => '/shared/admin_nav', :locals => {:current_view => "videos"} %>
+    <div id="itemNav" class="itemNav">
+      <div id="searchFilter">
+
+      </div>
+    </div>
+  </div>
+
+  <div id="itemList">
+    <div id="itemTrail">
+      <div id="itemTitle"><%= link_to @video.title, video_path(@video) %></div>
+      <% unless @video.smilTexts_count <= 0 %><%= link_to "Comments & Captions", video_smilTexts_path(@video) %>
+          (<%= @video.smilTexts_count %>)
+      <% end %>
+      <% unless @video.areas_count <= 0 %>&nbsp;&nbsp;|&nbsp;&nbsp;<%= link_to 'Hotspots', video_areas_path(@video) %>
+          (<%= @video.areas_count %>)
+      <% end %>
+    </div>
+    <table align="center" width="100%">
+      <tr align="center">
+        <td width="646" align="center" valign="top">
+          <div class="tablecontainer" style="margin-top:10px;">
+            <% if @video.media_type_id == Ref::MEDIA_TYPES[:video] %>
+                <%= render :partial => '/shared/video_player' %>
+            <% else %>
+                <%= render :partial => '/shared/article_comments_box' %>
+           <% end %>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <%= render :partial => '/shared/footer' %>
+</div>
+
+<div id="edit">
+  <div id="itemDetails" style="margin-left:747px;">
+    <div id="itemDetailsNav" class="itemNav itemDetailsNav"><%= Ref::MEDIA_TYPES.index(@video.media_type_id).to_s.humanize() %> Details</div>
+    <div id="infoview">
+      <% form_for [@partner, @video], :html => { :id => 'edit_video' } do |f| %>
+          <%= f.error_messages %>
+          <div class="infotitle">Title</div>
+          <div><%= f.text_field :title %></div>
+          <div class="separator"></div>
+
+          <div class="infotitle">URI</div>
+          <div><%= f.text_field :uri %></div>
+          <div class="separator"></div>
+
+          <div class="infotitle">Description</div>
+          <div><%= f.text_area :description %></div>
+          <div class="separator"></div>
+
+          <div class="infotitle">Source</div>
+          <div><%= f.text_field :src %></div>
+          <div class="separator"></div>
+
+          <div class="infotitle">Thumbnail Graphic</div>
+          <div><%= f.text_field :thumb %></div>
+
+		  <% if (allow_comments || is_root)%>
+          	<div class="infotitle">Enable Comments</div>
+          	<div><%= select 'video[options]', :comments_enabled, {:Yes => "1", :No => "0"}, {:selected => options[:comments_enabled]}, :class => "setting partnerSetting" %></div>
+		  <% end %>
+		  
+		  <% if (allow_annotations || is_root)%>
+          	<% if @video.media_type_id == Ref::MEDIA_TYPES[:video] %>
+	          <div class="infotitle">Enable Annotations</div>
+	          <div><%= select 'video[options]', :dubs_enabled, {:Yes => "1", :No => "0"}, {:selected => options[:dubs_enabled]}, :class => "setting partnerSetting" %></div>
+	
+	          <div class="infotitle">Show Annotations When Player Loads</div>
+	          <div><%= select 'video[options]', :dubs_display, {:Yes => "1", :No => "0"}, {:selected => options[:dubs_display]}, :class => "setting partnerSetting" %></div>
+          	<% end %>
+          <% end %>
+          
+          <% if (allow_facebook || is_root)%>
+			  <div class="infotitle">Enable Facebook</div>
+	          <div><%= select 'video[options]', :facebook_enabled, {:Yes => "1", :No => "0"}, {:selected => options[:facebook_enabled]}, :class => "setting partnerSetting" %></div>
+	          <div class="separator"></div>
+		  <% end %>
+		  
+          <% if (allow_twitter || is_root)%>
+	          <div class="infotitle">Enable Twitter</div>
+	          <div><%= select 'video[options]', :twitter_enabled, {:Yes => "1", :No => "0"}, {:selected => options[:twitter_enabled]}, :class => "setting partnerSetting" %></div>
+	          <div class="separator"></div>
+		  
+	          <div class="infotitle">Twitter Reply To</div>
+	          <div><%= text_field 'video[options]', :twitter_user, :value => options[:twitter_user], :class => "setting partnerSetting" %></div>
+	          <div class="separator"></div>
+	
+	          <div class="infotitle">Twitter hashtag(s) to include in reply separated by spaces</div>
+	          <div><%= text_field 'video[options]', :twitter_tags, :value => options[:twitter_tags], :class => "setting partnerSetting" %></div>
+	          <div class="separator"></div>
+	
+	          <div class="infotitle">Twitter Reader Search Parameters</div>
+	          <div><%= text_area 'video[options]', :twitter_search, :value => options[:twitter_search], :class => "setting partnerSetting" %></div>
+	          <div><%= hidden_field 'video[options]', :twitter_search_url, :value => options[:twitter_search_url] %></div>
+	          <div class="separator"></div>
+		  <% end %>
+		  
+          <div class="pagination" style="text-align: center; margin-top:20px; padding-bottom:20px">
+            <%= link_to_function "Update", "saveVideoSettings()", {:id => "update"} %>
+            <%= link_to "Cancel", partner_videos_path(@partner, :search => { :order => :descend_by_created_at } ) %>
+          </div>
+      <% end %>
+
+    </div>
+  </div>
+</div>
+
+<script>
+    var inherited_options = <%= @video.inherited_options.to_json %>;
+    var merged_options = <%= options.to_json %>;
+
+    $(document).ready(function() {
+
+        // Mark inherited settings
+        $(".partnerSetting").each(function (i) {
+            var name = $(this).attr("id").replace("video_options_", "");
+
+            if (inherited_options[name] == merged_options[name])
+            {
+                $(this).addClass("inherited");
+                //$(this).after("<span style='color:#C0504D'> *</span>");
+            }
+        });
+
+    });
+
+    function saveVideoSettings()
+    {
+        $('#login_with_oauth').attr('disabled', 'disabled');      // IE bug - submits all form content
+        $('#commentTextArea').attr('disabled', 'disabled');       // IE bug - submits all form content
+
+        $('#video_options_twitter_search_url').val(formatTwtSearchUrl($('#video_options_twitter_search').val()));
+
+        // Handle inherited values
+        $(".partnerSetting").each(function (i) {
+            var name = $(this).attr("id").replace("video_options_", "");
+
+            if (inherited_options[name] == $(this).val())
+            {
+                $(this).attr('disabled', 'disabled');
+                //$(this).after("<span style='color:#C0504D'> *</span>");
+            }
+        });
+        // Do not submit empty values for form fields of class 'settings'
+        $(".setting").each(function (i) {
+            if ($(this).val() == '')
+            {
+            	$(this).attr('disabled', 'disabled'); 
+            }
+        }); 
+
+        $('form#edit_video').submit()
+    }
+</script>

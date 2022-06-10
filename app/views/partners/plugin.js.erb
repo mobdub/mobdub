@@ -1,0 +1,71 @@
+// Mobdub Dubkit
+// version 0.1 BETA!
+// 2008-05-15
+// Copyright (c) 2008, Mobdub LLC
+//
+// --------------------------------------------------------------------
+//
+// This is a Greasemonkey user script.
+//
+// To install, you need Greasemonkey: http://greasemonkey.mozdev.org/
+// Then restart Firefox and revisit this script.
+// Under Tools, there will be a new menu item to "Install User Script".
+// Accept the default configuration and install.
+//
+// To uninstall, go to Tools/Manage User Scripts,
+// select "Mobdub", and click Uninstall.
+//
+// --------------------------------------------------------------------
+//
+// ==UserScript==
+// @name          Mobdub
+// @namespace     http://mobdub.com/partners/
+// @description   Blogging in motion
+// @include       http://www.youtube.com/watch*
+// @include       http://youtube.com/watch*
+// ==/UserScript==
+
+function mdLoadScript(src)
+{
+    var oldScript = document.getElementById('mobdubScript');
+    if (oldScript != null)
+    {
+        oldScript.parentNode.removeChild(oldScript);
+        delete oldScript;
+    }
+    var head = document.getElementsByTagName("head")[0];
+    var script = document.createElement('script');
+
+    script.id = 'mobdubScript';
+    script.type = 'text/javascript';
+
+    script.src = src;
+    head.appendChild(script);
+}
+
+try
+{
+    var ytPlayerWidth = 480;
+    var ytPlayerHeight = 385;
+
+    var ytOldPlayer = document.getElementById("movie_player"); //add this to rb env var
+    if (ytOldPlayer) // false on mobdub.com
+    {
+        ytPlayerWidth = ytOldPlayer.width;
+        ytPlayerHeight = ytOldPlayer.height;
+    }
+
+    var ytPlayerDiv = document.getElementById("watch-player-div");
+    if (ytPlayerDiv)
+    {
+        ytPlayerDiv.style.position = "relative";
+        ytPlayerDiv.style.width = ytPlayerWidth + "px";
+        ytPlayerDiv.style.height = ytPlayerHeight + "px";
+        ytPlayerDiv.innerHTML = "";
+    }
+}
+catch (e) {
+}
+
+// TODO: Decide if cache-busting is needed for frequent updates
+mdLoadScript("http://ext.mobdub.com/partners/scripts.js?uri=" + encodeURIComponent(document.URL));

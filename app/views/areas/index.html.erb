@@ -1,0 +1,102 @@
+<% @page_title = "Moderate - Mobdub" %>
+
+<div id="itemMain">
+  <div id="menu">
+    <%= render :partial => '/shared/admin_nav', :locals => {:current_view => "areas"} %>
+    <div id="itemNav" class="itemNav">
+      <div id="searchFilter">
+        <% @search.created_at_greater_than_or_equal_to = @search.created_at_greater_than_or_equal_to.to_date if @search.created_at_greater_than_or_equal_to %>
+        <% form_for @search, :html => {:id => "search"} do |f| %>
+            Search <%= f.text_field :title_like %>
+            Status <%= f.select :status_id_equals, moderation_status_list, :include_blank => "All" %>&nbsp;&nbsp;
+            Date <%= f.select :created_at_greater_than_or_equal_to, search_date_filter_list %>
+            <span class="pagination searchBox"><%= link_to_function "Show", "$('form#search').submit()" %></span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div id="itemList">
+    <div id="itemTrail">
+      <% if @video %>
+          <div id="itemTitle"><%= link_to @video.title, partner_video_path(@partner, @video) %></div>
+          <% unless @video.smilTexts_count <= 0 %><%= link_to "Posts", video_smilTexts_path(@video, :search => { :order => :descend_by_created_at }) %>
+              (<%= @video.smilTexts_count %>)
+          <% end %>
+          <% unless @video.areas_count <= 0 %>&nbsp;&nbsp;|&nbsp;&nbsp;Hotspots (<%= @search.count %>)
+          <% end %>
+      <% else %>
+          <div id="itemTitle">All Media</div>
+          <%= link_to "Posts", partner_smilTexts_path(@partner, :search => { :order => :descend_by_created_at }) %> (<%= @partner.smilTexts.count %>)&nbsp;&nbsp;|&nbsp;&nbsp;Hotspots (<%= @search.count %>)
+      <% end %>
+    </div>
+
+    <table class="contentTable">
+      <tr valign="bottom">
+        <th width="65%"><%= order @search, :by => :body, :as => "Text" %></th>
+        <th class="dateHeader"><%= order @search, :by => :created_at, :as => "Date" %></th>
+        <th width="75"><%= order @search, :by => :status_id, :as => "Status" %></th>
+        <th width="120"></th>
+      </tr>
+      <% for area in @areas %>
+          <tr class="highlight <%= cycle('row1', 'row2') %>" onclick="showDetails(this, '<%= video_area_path(area.video_id, area) %>?view=inline');"
+              <% if @areas.first %> id="firstItem"
+              <% end %>>
+            <td valign="middle"><span class="itemLink"><%= link_to html_escape(area.title), video_area_path(area.video_id, area) %></span></td>
+            <td>
+              <div class="date"><%= h area.created_at %></div>
+            </td>
+            <td>
+              <div id="cmtStatus<%= area.id %>"><%= h Area::STATUSES.index(area.status_id).to_s.humanize() %></div>
+            </td>
+            <td style="text-align:left;padding-left:0">
+              <div style="position:relative;">
+	              <span class="moderate approve" style="position:absolute; left:-3px; top:-6px; margin-left:9px; margin-bottom:5px" 
+	              	id="approve<%= area.id %>" 
+	              	cmtId="<%= area.id %>" 
+	              	posturl="<%= h moderate_video_area_path(area.video_id, area) %>?status=approved" 
+	              	action="Approved">
+	                <% if Area::STATUSES.index(area.status_id).to_s != "approved" %>
+	                    Approve
+	                <% end %>
+	              </span>
+	              <span class="moderate reject" style="position:absolute; left:67px; top:-6px; margin-left:9px; margin-bottom:5px" 
+	              	id="reject<%= area.id %>" 
+	              	cmtId="<%= area.id %>" 
+	              	posturl="<%= h moderate_video_area_path(area.video_id, area) %>?status=rejected" 
+	              	action="Rejected">
+	                <% if Area::STATUSES.index(area.status_id).to_s != "rejected" %>
+	                    Reject
+	                <% end %>
+	              </span>
+              </div>
+            </td>
+          </tr>
+      <% end %>
+    </table>
+    <div class="actionLinks">
+      <%= link_to 'New Area Text', new_video_area_path(@video) if @video && is_root %>
+    </div>
+  </div>
+  <%= render :partial => '/shared/footer' %>
+</div>
+
+<div id="itemDetails">
+	<div class='trailing'>
+  		<div id="itemDetailsNav" class="itemNav itemDetailsNav">Hotspot Details</div>
+  		<iframe id="itemFrame" width="100%" height="700" marginwidth="0" marginheight="0" frameborder="0" scrolling="no"></iframe>
+  	</div>
+</div>
+
+<script>
+    <% if @search.count > 0 %>
+        $(document).ready(function() {
+            showDetails($("#firstItem"), '<%= video_area_path(@areas.first.video_id, @areas.first) %>?view=inline');
+            // IE Hack to fix row titles misaligning
+			$("#itemList").css("visibility", "visible");
+        });
+    <% else %>
+        $(".contentTable").html("<div style='margin-top: 10px'>No content matches your criteria.</div>");
+    <% end %>
+    
+</script>

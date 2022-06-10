@@ -1,0 +1,265 @@
+<%	
+if ENV['RAILS_ENV'] == 'production'
+	image_domain = 'http://images.mobdub.com'
+	scripts_domain = 'http://scripts.mobdub.com'
+	styles_domain = 'http://styles.mobdub.com'
+else
+	image_domain = '/images'
+	scripts_domain = '/javascripts'
+	styles_domain = '/stylesheets'
+end
+%>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://www.facebook.com/2008/fbml">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+  <title>Sign Up</title>
+  <link href="<%= styles_domain %>/mdlogin.css" media="screen" rel="stylesheet" type="text/css" />
+  <script src="<%= scripts_domain %>/login_all_min.js" type="text/javascript"></script>
+  
+  <script type='text/javascript'>
+	function md_insertCssRules(decls) 
+	{
+	    var style = document.createElement('style');
+	    document.getElementsByTagName('head')[0].appendChild(style);
+	    
+	    if (!window.createPopup) 
+	    { /* For Safari */
+	       style.appendChild(document.createTextNode(''));
+	    }
+	    var s = document.styleSheets[document.styleSheets.length - 1];
+	    
+	    for (var i=0, dl = decls.length; i < dl; i++) 
+	    {
+	        var j = 1, decl = decls[i], selector = decl[0], rulesStr = '';
+	        if (Object.prototype.toString.call(decl[1][0]) === '[object Array]') {
+	            decl = decl[1];
+	            j = 0;
+	        }
+	        for (var rl=decl.length; j < rl; j++) 
+	        {
+	            var rule = decl[j];
+	            rulesStr += rule[0] + ':' + rule[1] + (rule[2] ? ' !important' : '') + ';\n';
+	        }
+	
+	        if (s.insertRule) 
+	        {
+	            s.insertRule(selector + '{' + rulesStr + '}', s.cssRules.length);
+	        }
+	        else 
+	        { /* IE */
+	            s.addRule(selector, rulesStr, -1);
+	        }
+	    }
+	}
+  </script>
+  <script type="text/javascript">
+    var mdDomain = document.domain;
+    document.domain = mdDomain.substring(mdDomain.lastIndexOf(".", mdDomain.lastIndexOf(".") - 1) + 1);
+	var options = parent.Mobdub.Comments.options;
+	var environment = '<%= ENV['RAILS_ENV'] %>';
+
+	// Set custom link color
+	try
+    {
+       if(options['comments_custom_css_link_color'])
+        {
+            var link_color = options['comments_custom_css_link_color'];
+            // Insert CSS settings into stylesheet obj
+			md_insertCssRules([
+			  ['.md-text-link', 
+			    ['color', link_color, true]
+			  ]
+			]);	
+        }            	
+    } catch (e) {};
+
+    try
+    {
+        if (parent.md_config.custom_css_url)
+        {
+            mdLoadScript( parent.md_config.custom_css_url, 'custom', 'css' );
+        }
+    }
+    catch(e) {}
+
+    function mdLoadScript( url, id, type )
+    {
+        if ( url )
+        {
+            var oldFile = document.getElementById( id );
+            if( oldFile != null )  	{ oldFile.parentNode.removeChild ( oldFile ); delete oldFile; }
+
+            var head = document.getElementsByTagName( 'head' )[0];
+
+            if( type == 'css' )
+            {
+                var mdTag = document.createElement( 'link' );
+                mdTag.type = 'text/css';
+                mdTag.id = id;
+                mdTag.rel = 'stylesheet';
+                mdTag.href = url;
+            }
+            else
+            {
+                var mdTag = document.createElement( 'script' );
+                mdTag.type = 'text/javascript';
+                mdTag.id = id;
+                mdTag.src = url;
+            }
+
+            head.appendChild( mdTag );
+        }
+    }
+
+  function mdValidateUsername(e)
+  {
+      var keynum
+      var keychar
+      var check
+
+      if (window.event) {
+          keynum = e.keyCode
+      }     //IE
+      else if (e.which) {
+          keynum = e.which
+      }		//FF/Chrome/Safari
+
+      //alert( keynum );
+      //8 - backspace, 46 - del, 13 - return,
+      if (!keynum || keynum == 8 || keynum == 13 || keynum == 39 || keynum == 46) {
+          return true
+      }
+
+      keychar = String.fromCharCode(keynum);
+      check = /^[a-zA-Z0-9_.-]+$/;
+      return check.test(keychar);
+  }
+
+  </script>  
+</head>
+
+<body>
+
+<div id="content" style="position:relative; margin-left:30px; margin-top:14px;" class="md-background">
+  <div style="position:absolute; top:-5px; left:282px">
+    <img id="closeWin" style="cursor:pointer" onclick="parent.Mobdub.Auth.showLoginBox( false );" onmouseout="this.src='<%= image_domain %>/xDark.png';" onmouseover="this.src='<%= image_domain %>/xLight.png';" src="<%= image_domain %>/xDark.png"/>
+  </div>
+  <div class="sectionLabel md-popup-text-header" style="margin-bottom: 5px">Sign Up</div>
+  <div style="font-weight:bold; font-size:1.0em; margin-bottom: 14px; color:#CCCCCC">Already a member?
+    <a class="md-text-link" href="<%= new_partner_user_session_path(params[:partner_id]) if params[:partner_id] %>">Sign in</a> to your account.
+  </div>
+  <div class="inputLabel">
+    <% form_for @user, :url => partner_users_path(params[:partner_id]), :html => { :id => "new_user", :name => "new_user" } do |f| %>
+        <!-- <%= f.error_message_on :base %> -->
+        <div style="margin-bottom: 8px">
+          <div><%= f.label :login, "Username" %></div>
+          <div><%= f.text_field :login, :maxlength => 16, :class => "inputField validate-username", :onkeypress => "return mdValidateUsername( event )" %></div>
+          <div id="errUserName" class="errorText"></div>
+        </div>
+
+        <div style="margin-bottom: 8px">
+          <div><%= f.label :email %></div>
+          <div><%= f.text_field :email, :class => "inputField validate-required-email validate-email" %></div>
+          <div id="errEmail" class="errorText"></div>
+        </div>
+
+        <div style="margin-bottom: 8px">
+          <div><%= f.label :password %></div>
+          <div><%= f.password_field :password, :class => "inputField validate-password" %></div>
+          <div id="errPassword" class="errorText"></div>
+        </div>
+
+        <div style="margin-bottom: 12px">
+          <div><%= f.label :password_confirmation, "Repeat Password" %></div>
+          <div><%= f.password_field :password_confirmation, :class => "inputField validate-passwordconfirmation" %></div>
+          <div id="errPasswordConfirmation" class="errorText"></div>
+        </div>
+
+        <div>
+          <input style="height:24px; width:71px; outline-style:none;"
+                 type="image"
+                 src="<%= image_domain %>/signUpDark.png" id="user_submit"
+                 name="commit"
+                 value="Submit"
+                 onmouseout="this.src='<%= image_domain %>/signUpDark.png';"
+                 onmouseover="this.src='<%= image_domain %>/signUpLight.png';">
+          </input>
+        </div>
+        </div>
+        </div>
+
+        <script>
+            var frameHeight = "390px";
+            var loginBoxHeight = "392px";
+
+            mdSetFrameHeight(390);
+
+            function mdSetFrameHeight(height)
+            {
+                parent.document.getElementById("mdLoginFrame").style.height = height + "px";
+                parent.document.getElementById("mdLoginIframeBorder").style.height = height + "px";
+                parent.document.getElementById("mdLoginBox").style.height = ( height + 2 ) + "px";
+            }
+
+            function mdGetError()
+            {
+                var errorObj =
+                {
+                    "userName": '<%= escape_javascript( f.error_message_on :login, :prepend_text => "Username ", :append_text => ".",  :css_class => "errorText" ) %>',
+                    "email": '<%= escape_javascript( f.error_message_on :email, :prepend_text => "Email address ", :append_text => ".", :css_class => "errorText" ) %>',
+                    "password": '<%= escape_javascript( f.error_message_on :password, :prepend_text => "Password ", :append_text => ".", :css_class => "errorText" ) %>',
+                    "passwordConfirmation": '<%= escape_javascript( f.error_message_on :password_confirmation, :prepend_text => "Password confirmation ", :append_text => ".", :css_class => "errorText" ) %>'
+                };
+
+                return errorObj;
+            }
+
+            function mdDisplayError(eObj)
+            {
+                if (eObj)
+                {
+                    if (eObj.userName != '')
+                    {
+                        $("errUserName").update(eObj.userName);
+                        $("user_login").addClassName("validation-failed");
+                        mdSetFrameHeight(410);
+                    }
+                    if (eObj.email != '')
+                    {
+                        $("errEmail").update(eObj.email);
+                        $("user_email").addClassName("validation-failed");
+                        mdSetFrameHeight(410);
+                    }
+                    if (eObj.password != '')
+                    {
+                        $("errPassword").update(eObj.password);
+                    }
+                    if (eObj.passwordConfirmation != '')
+                    {
+                        $("errPasswordConfirmation").update(eObj.passwordConfirmation);
+                    }
+                }
+            }
+
+            function mdOnFormValidate(passed, formId)
+            {
+                if (!passed) mdSetFrameHeight(410);
+                var serverErr = $$("div.errorText");
+                serverErr.each(Element.hide);
+            }
+
+            mdDisplayError(mdGetError());
+
+            var formValidationPassed = true;
+            new Validation('new_user', { onFormValidate: function(passed, formId) {
+                mdOnFormValidate(passed, formId);
+            } });
+        </script>
+
+    <% end %>
+    </body>
+</html>

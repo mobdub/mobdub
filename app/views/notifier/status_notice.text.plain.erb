@@ -1,0 +1,15 @@
+<%= "On #{@record.created_at.strftime('%-m/%-d/%y at %-I:%M %p UTC')} #{@record.author || 'Guest'}" -%>
+<%= " <#{@record.author_email}>" if @record.author_email -%> posted:
+
+<%= @record.body %>
+
+Post Status: <%= @status.to_s.capitalize %>
+
+Media Title: <%= @record.video.title %>
+
+Moderate Post: <%= ref_smilText_url(@record.video, @record) %>
+
+----------------------------------
+
+Change Notification Settings: <%= edit_partner_url(@record.video.partner_id, :setting => "moderation") %>
+Contact Support: support@mobdub.com

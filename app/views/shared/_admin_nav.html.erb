@@ -1,0 +1,23 @@
+<div>
+  <table class="menuTable">
+    <tr height="35">
+      <td width="146" class="menuheader
+        <% if current_view == "partners" %>menuheaderselected
+        <% end %>"><%= link_to "Home", partner_path(@partner) if @partner %></td>
+      <td width="146" class="menuheader
+        <% if current_view == "videos" %>menuheaderselected
+        <% end %>"><%= link_to "Media", partner_videos_path(@partner, :search => { :order => :descend_by_created_at } ) if @partner %></td>
+      <td width="146" class="menuheader
+        <% if current_view == "smil_texts" || current_view == "areas" %>menuheaderselected
+        <% end %>"><%= link_to "Moderate", partner_smilTexts_path(@partner, :search => { :order => :descend_by_created_at } ) if @partner %></td>
+      <td width="146" class="menuheader
+        <% if current_view == "users" || current_view == "users" %>menuheaderselected
+        <% end %>"><%= link_to "Users", partner_users_path(@partner, :search => { :order => :descend_by_created_at } ) if @partner %></td>
+      <% if is_admin %>
+      <td width="146" class="menuheader
+        <% if current_view == "settings" %>menuheaderselected
+        <% end %>"><%= link_to "Settings", edit_partner_path(@partner) if @partner %></td>
+      <% end %>
+    </tr>
+  </table>
+</div>

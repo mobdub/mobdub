@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+  <link rel="shortcut icon" href="/mdicon.png"/>
+  <title><%= @page_title %></title>
+  <%= stylesheet_link_tag 'mdadmin' %>
+  
+  <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if necessary --> 
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.js"></script> 
+  <script>window.jQuery || document.write("<script src='/javascripts/libs/jquery-1.6.2.min.js'>\x3C/script>")</script> 
+  <script src="/javascripts/mdadmin.js"></script> 
+</head>
+
+<body>
+<% if params[:view] != "inline" %>
+    <div id="page">
+      <div id="top" style="position: relative;">
+        <div id="logo">
+          <img src="/images/mdLogoAdmin.jpg" alt="Mobdub - Beta"/>
+        </div>
+        <div id="dubCounter">
+          <% if current_user %>
+              Signed in as <% if @partner && @partner.id != nil %> <a href="<%= edit_user_path(@partner, :reroute => partner_path(@partner)) %>" title="Change User Password"><%= h current_user.screen_name %></a><% else %><%= h current_user.screen_name %><% end %>.&nbsp;&nbsp;&nbsp;<%= link_to "Sign Out", user_session_path(:current, :reroute => request.request_uri), :method => :delete %><!--&nbsp;&nbsp;|&nbsp;&nbsp;<a href='http://support.mobdub.com' target='_blank'>Help</a>-->
+          <% end %>
+          <div id="partnerCallLetters">
+            <%= @partner.name if @partner %>
+          </div>
+        </div>
+        <div id="pagebar"></div>
+      </div> 
+<% end %>
+
+<!-- MAIN CONTENT -->
+<div id="maincontent" class="maincontent" style="position:relative;"> 
+  <%= yield %>
+</div>
+
+<% if params[:view] != "inline" %>
+    <!--<%= render :partial => '/shared/footer' %>-->
+<% end %>
+</div>
+
+<script> 
+    var _gaq=[["_setAccount","UA-XXXXXXX-X"],["_trackPageview"]];
+    (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];g.async=1;
+    g.src=("https:"==location.protocol?"//ssl":"//www")+".google-analytics.com/ga.js";
+    s.parentNode.insertBefore(g,s)}(document,"script"));
+</script> 
+  
+</body>
+</html>

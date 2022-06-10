@@ -1,0 +1,121 @@
+<% @page_title = "Home Dashboard - Mobdub" %>
+
+<div id="itemMain">
+  <div id="menu">
+    <%= render :partial => '/shared/admin_nav', :locals => {:current_view => "partners"} %>
+    <div id="itemNav" class="itemNav"></div>
+  </div>
+
+  <div id="itemList">
+    <div id="itemContent">
+      <% smilTexts_copy = @partner.smilTexts.status_id_equals(SmilText::STATUSES[:flagged]).descend_by_created_at.paginate(:page => 1, :per_page => 15) %>
+      <% if smilTexts_copy.first %>
+          <div class="tablecontainer">
+            <div class="dashboardHeader">Flagged Items</div>
+            <table class="contentTable">
+              <tr valign="bottom">
+                <th width="22">Text</th>
+                <th></th>
+                <th class="dateHeader">Updated</th>
+                <th width="75">Status</th>
+                <th width="120"></th>
+              </tr>
+              <% for smilText in smilTexts_copy %>
+                  <tr class="highlight <%= cycle('row1', 'row2') %>" onclick="showDetails(this, '<%= video_smilText_path(smilText.video_id, smilText) %>?view=inline', '<%= SmilText::TEXT_STYLES.index(smilTexts_copy.first.text_style_id).to_s.capitalize() %>');"
+                      <% if @partner.smilTexts.all(:conditions => "status_id = 30").first %> id="firstItem"
+                      <% end %>>
+                    <td style="text-align:center;"><img alt="<%= SmilText::TEXT_STYLES.index(smilText.text_style_id).to_s.capitalize() %>" title="<%= SmilText::TEXT_STYLES.index(smilText.text_style_id).to_s.capitalize() %>" src="/images/type_<%= SmilText::TEXT_STYLES.index(smilText.text_style_id).to_s %>.png" /></td>
+                    <td><span class='itemLink'><%= link_to html_escape(smilText.body), video_smilText_path(smilText.video_id, smilText) %></td>
+                    <td>
+                      <div class="date"><%= smilText.updated_at %></div>
+                    </td>
+                    <td>
+                      <div id="cmtStatus<%= smilText.id %>"><%= h SmilText::STATUSES.index(smilText.status_id).to_s.capitalize() %></div>
+                    </td>
+                    <td style="text-align:left;padding-left:0">
+              			<div style="position:relative;">
+			              <span class="moderate approve" style="position:absolute; left:4px; top:-6px;" 
+			              	id="approve<%= smilText.id %>" 
+			              	cmtId="<%= smilText.id %>" 
+			              	posturl="<%= h moderate_video_smilText_path(smilText.video_id, smilText) %>?status=approved" 
+			              	action="Approved"><% if SmilText::STATUSES.index(smilText.status_id).to_s != "approved" %>Approve<% end %>
+			              </span>
+			              <span class="moderate reject" style="position:absolute; left:75px; top:-6px;"  
+			              	id="reject<%= smilText.id %>" 
+			              	cmtId="<%= smilText.id %>" 
+			              	posturl="<%= h moderate_video_smilText_path(smilText.video_id, smilText) %>?status=rejected" 
+			              	action="Rejected"><% if SmilText::STATUSES.index(smilText.status_id).to_s != "rejected" %>Reject<% end %>
+			              </span>
+		              </div>
+	            	</td>
+                  </tr>
+              <% end %>
+            </table>
+            <div class="pagination" style="text-align:right; padding-right:0"><%= link_to "More >>", partner_smilTexts_path(@partner, :search => { :status_id_equals => SmilText::STATUSES[:flagged], :order => :descend_by_created_at }) %></div>
+          </div>
+      <% else %>
+          <div class="dashboardHeader">Flagged Items</div>
+          <div style='margin:20px 6px'>No matches found.</div>
+      <% end %>
+
+      <% videos_copy = @partner.videos.descend_by_created_at.paginate(:page => 1, :per_page => 15) %>
+      <% if videos_copy.first %>
+      <div class="tablecontainer">
+        <div class="dashboardHeader">Most Recent Media</div>
+        <table class="contentTable">
+          <tr valign="bottom">
+            <th width="22">Title</th>
+            <th></th>
+            <th class="dateHeader">Date</th>
+	        <!--<th width="45">Type</th>-->
+            <th width="37" style="text-align:center;">Posts</th>
+            <th width="52" style="text-align:center;">Hotspots</th>
+            <th width="67"></th>
+            <th width="38"></th>          
+          </tr>          
+          <% for video in videos_copy %>
+              <tr class="highlight <%= cycle('row1', 'row2') %>" onclick="showDetails(this, '<%= video_path(video)%>?view=inline', '<%= Ref::MEDIA_TYPES.index(video.media_type_id).to_s.humanize() %>');"
+                  <% if @partner.videos.all(:limit => 15, :order => "(areas_count + smilTexts_count) DESC") %> id="firstItem"
+                  <% end %>>
+                <td><img alt="<%= Ref::MEDIA_TYPES.index(video.media_type_id).to_s.humanize() %>" title="<%= Ref::MEDIA_TYPES.index(video.media_type_id).to_s.humanize() %>" src="/images/type_<%= Ref::MEDIA_TYPES.index(video.media_type_id).to_s.humanize().downcase %>.png" /></td>
+                <td valign="middle"><span class="itemLink"><%= link_to html_escape(video.title), video_path(video) %></span></td>
+                <td>
+                  <div class="date"><%= video.created_at %></div>
+                </td>
+                <td style="text-align:center;"><%= link_to "#{video.smilTexts_count}", video_smilTexts_path(video) if video.smilTexts_count > 0 %></td>
+                <td style="text-align:center;"><%= link_to "#{video.areas_count}", video_areas_path(video) if video.areas_count > 0 %></td>             
+                <td style="text-align:center;"><%= link_to 'Moderate', video_smilTexts_path(video) if ( (video.smilTexts_count > 0 || video.areas_count > 0)) %></td>
+                <td style="text-align:center;"><%= link_to 'Edit', edit_video_path(video) %></td>
+              </tr>
+          <% end %>
+        </table>
+        <div class="pagination" style="text-align:right; padding-right:0"><%= link_to "More >>", partner_videos_path(@partner, :search => { :order => :descend_by_created_at }) %></div>
+      </div>
+      <% else %>
+          <div class="dashboardHeader">Most Recent Media</div>
+          <div style='margin:20px 6px'>No matches found.</div>
+      <% end %>
+    </div>
+  </div>
+  <%= render :partial => '/shared/footer' %>
+</div>
+
+<div id="itemDetails">
+  <div class='trailing' style="background-color:#ffffff">
+    <div id="itemDetailsNav" class="itemNav itemDetailsNav">Item Details</div>
+    <iframe id="itemFrame" width="100%" height="940" marginwidth="0" marginheight="0" frameborder="0" scrolling="no"></iframe>
+  </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+    <% if smilTexts_copy.first %>
+        showDetails($("#firstItem"), '<%= video_smilText_path(smilTexts_copy.first.video_id, smilTexts_copy.first) %>?view=inline', '<%= SmilText::TEXT_STYLES.index(smilTexts_copy.first.text_style_id).to_s.humanize() %>');
+    <% elsif videos_copy.first %>
+        showDetails($("#firstItem"), '<%= video_path(videos_copy.first) %>?view=inline', '<%= Ref::MEDIA_TYPES.index(videos_copy.first.media_type_id).to_s.humanize() %>');
+    <% end %>
+
+		// IE Hack to fix row titles misaligning
+		$("#itemList").css("visibility", "visible");
+    });
+</script>

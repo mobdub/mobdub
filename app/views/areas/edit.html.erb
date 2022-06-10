@@ -1,0 +1,63 @@
+<% @page_title = "Edit Selection Area - Mobdub" %>
+<div id="itemMain">
+  <div id="menu">
+    <%= render :partial => '/shared/admin_nav', :locals => {:current_view => "smil_texts"} %>
+    <div id="itemNav" class="itemNav">
+      <% if @video %>
+          <%= link_to "All Media", partner_videos_path(@partner) %>&nbsp;&nbsp;>&nbsp;&nbsp;<%= link_to @video.title, video_path(@video) %>&nbsp;&nbsp;>&nbsp;&nbsp;Comments
+          &
+          Captions (<%= @video.smilTexts_count %>
+          )&nbsp;&nbsp;|&nbsp;&nbsp;<%= link_to 'Hotspots', video_areas_path(@video) %>
+          (<%= @video.areas_count %>)
+      <% else %>
+          <%= link_to "All Media", partner_videos_path(@partner) %>&nbsp;&nbsp;>&nbsp;&nbsp;Comments & Captions
+          (<%= @partner.smilTexts_count %>
+          )&nbsp;&nbsp;|&nbsp;&nbsp;<%= link_to 'Hotspots', partner_areas_path(@partner) %>
+          (<%= @partner.areas_count %>)
+      <% end %>
+    </div>
+  </div>
+
+  <div id="edit">
+    <div id="itemList">
+      <div id="infoview">
+        <div class="dashboardHeader">Edit Comments & Captions</div>
+
+        <% form_for :area, :url => video_area_path(@video, @area), :html => { :method => :put } do |f| %>
+            <%= f.error_messages %>
+            <div class="infotitle">Text</div>
+            <div><%= f.text_field :title %></div>
+            <div class="separator"></div>
+
+            <div class="infotitle">Created</div>
+            <div class="dateLong"><%= @area.created_at %></div>
+            <div class="separator"></div>
+
+            <div class="infotitle">Timestamp</div>
+            <div><%= f.text_field :begin %></div>
+            <div class="separator"></div>
+
+            <div class="infotitle">Link</div>
+            <div><%= f.text_field :href %></div>
+            <div class="separator"></div>
+
+            <div class="infotitle">Tags</div>
+            <div>#dogs #cats</div>
+            <div class="separator"></div>
+
+            <div class="infotitle">Author</div>
+            <div>jaxon@komonews.com anne@fisher.com</div>
+            <div>&nbsp;</div>
+
+            <div class="pagination" style="text-align: center; margin-top:20px">
+              <%= link_to_function "Update", "$('form').submit()" %>
+              <%= link_to "Cancel", video_area_path(@video, @area) %>
+            </div>
+        <% end %>
+
+      </div>
+    </div>
+  </div>
+  <%= render :partial => '/shared/footer' %>
+</div>
+

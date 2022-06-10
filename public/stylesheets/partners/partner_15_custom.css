@@ -1,0 +1,57 @@
+/* Text Link */
+#MobdubVideoComments .md-text {
+    color: #3C3940 !important;
+}
+#MobdubVideoComments .md-reader-info {
+    color: #3C3940 !important;
+}
+#MobdubVideoComments .md-comments-filter {
+    color: #3C3940 !important;
+}
+#MobdubVideoComments .md-text-link {
+    color: #BF2B27 !important;
+}
+#MobdubVideoComments .md-link-more {
+    color: #BF2B27 !important;
+}
+#twtCommentBody .md-text-username {
+    color: #BF2B27 !important;
+}
+#twtCommentBody a {
+    color: #BF2B27 !important;
+}
+
+/* Tabs */
+#MobdubVideoComments .md-text-tab-link {
+    color: #999999 !important;
+}
+#MobdubVideoComments a.md-text-tab-link:hover {
+    color: #BF2B27 !important;
+}
+#MobdubVideoComments a.md-text-tab-active {
+    color: #BF2B27 !important;
+}
+#MobdubVideoComments a.md-text-tab-active:hover {
+    color: #BF2B27 !important;
+}
+
+/* Border */
+#MobdubVideoComments .md-border-inputbox {
+    -moz-border-radius: 0 !important;
+    -webkit-border-radius: 0 !important;
+}
+#MobdubVideoComments .md-border-reader {
+    -moz-border-radius: 0 !important;
+    -webkit-border-radius: 0 !important;
+}
+
+#MobdubVideoComments .ui-slider-handle, #MobdubVideoComments .ui-slider-handle a, #MobdubVideoComments .ui-slider-handle a:hover {
+    border-color: #BF2B27 !important;
+    color: #BF2B27 !important; 	
+    background: none repeat scroll 0 0 #BF2B27 !important
+}
+
+/* Sign Up Screens */
+.md-text-link {
+    color: #BF2B27 !important;
+}

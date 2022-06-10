@@ -1,0 +1,111 @@
+
+<% if @video.media_type_id != 3 %>
+<%= render :partial => 'partners/scripts/swfobject' %>
+
+function mdPluginLoadScript(elemId, filePath)
+{
+    var oldFile = document.getElementById(elemId);
+
+    if (oldFile != null) {
+        oldFile.parentNode.removeChild(oldFile);
+        delete oldFile;
+    }
+
+    var head = document.getElementsByTagName('head')[0];
+    var scriptElem = document.createElement('script');
+
+    scriptElem.setAttribute('id', elemId);
+    scriptElem.setAttribute('type', 'text/javascript');
+    scriptElem.setAttribute('src', filePath);
+
+    head.appendChild(scriptElem);
+}
+<% end %>
+
+// Global vars
+var _mdBaseUrl = '<%= base_url %>';
+var ptPlayerDivName = "<%= partner_player_div %>";
+var ptPlayerObjId = "<%= params[:player_id] %>";
+var ptEnableDubs    = "<%= params[:enable_dubs] %>";
+var mdPlayerWidthOvr = "<%= params[:player_width] %>";
+var mdPlayerHeightOvr = "<%= params[:player_height] %>";
+var mdPlayerMarginTop = "<%= params[:player_margin_top] %>";
+var mdPlayerMarginLeft = "<%= params[:player_margin_left] %>";
+
+var mdVideoConfig;
+var mdPluginObj = mdVideoConfig = {
+    "videoId": "<%= @video.id %>",
+    "videoTitle": "<%= escape_javascript @video.title %>",
+    "videoDescription": "<%=  escape_javascript @video.description %>",
+    "videoUri": "<%= @video.uri %>",
+    "videoCreatedAtDate": "<%=  @video.created_at %>",
+    "videoDubCount": "<%=  @video.areas_count + @video.smilTexts_count %>",
+    "partnerId": "<%= @partner.id %>"
+};
+
+try
+{   var _mdVideoOptions = <%= @video.merged_options.to_json %>;
+    _mdVideoOptions.video_id =  '<%= @video.id %>';
+    _mdVideoOptions.video_uri =  '<%= @video.uri %>';
+    _mdVideoOptions.video_title = '<%= escape_javascript @video.title %>';
+    _mdVideoOptions.video_link_url = '<%= partner_video_link_url(@partner, @video) %>';
+    _mdVideoOptions.video_screen_width = '<%= params[:player_width] %>';
+    _mdVideoOptions.partner_name = '<%=  @partner.name  %>';
+    _mdVideoOptions.partner_id = '<%=  @partner.id  %>';
+    _mdVideoOptions.partner_url = '<%=  @partner.url %>';
+    _mdVideoOptions.guest_allowed = <%=  @partner.guest_allowed %>;
+    _mdVideoOptions.sso_enabled = <%=  @partner.sso_enabled  %>;
+    _mdVideoOptions.sso_cookie = '<%=  @partner.sso_cookie  %>';
+    _mdVideoOptions.comments_type_id = '<%= @video.media_type_id %>';
+    _mdVideoOptions.comments_per_page = '<%= @partner.max_per_page %>';
+
+    <% if @video.media_type_id == 3 %>
+        _mdVideoOptions.comments_layout = 'autogrow';
+        _mdVideoOptions.comments_type = 'text';
+    <% end %>
+}
+catch (e) {}
+
+<% if @video.media_type_id != 3 %>
+try
+{
+    // Only for video comments
+    if(mdCommentsLoaded)
+    {
+        Mobdub.Comments.loadSettings(_mdVideoOptions);
+        mdVideoSettingsObject = null;
+    }
+    else
+    {
+        mdVideoSettingsObject =_mdVideoOptions;
+    }
+}
+catch (e) {}
+
+try
+{
+    mdPluginScriptLoaded(mdPluginObj);
+    mdPluginScriptLoadedSite(mdPluginObj);
+}
+catch (e) {}
+
+function mdShowDubs(show)
+{
+    var mdAnnotationLayer = document.getElementById("mdPlayerPlaceDiv");
+
+    // Using sizes since hiding the div will stop flash from running in the background
+    if (!show)
+    {
+    	//mdAnnotationLayer.style.visibility = "hidden";
+        mdAnnotationLayer.style.width = "1px";
+        mdAnnotationLayer.style.height = 400 + "px";   // Since flash doesn't run unless visible in the browser.
+                                                       // on a preroll - the content clips's comments were not loading if the top of the video player wasn't in the browser screen
+    }
+    else if (_mdVideoOptions.dubs_enabled == 1)
+    {
+    	//mdAnnotationLayer.style.visibility = "visible";
+        mdAnnotationLayer.style.width = mdPlayerWidthOvr + "px";    //TODO; read for the settings on the page
+        mdAnnotationLayer.style.height = mdPlayerHeightOvr + "px";
+    }
+}
+<% end %>

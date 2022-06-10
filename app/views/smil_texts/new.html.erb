@@ -1,0 +1,77 @@
+<div id="itemMain">
+  <div id="menu">
+    <%= render :partial => '/shared/admin_nav', :locals => {:current_view => "smil_texts"} %>
+    <div id="itemNav" class="itemNav">
+      <% if @video %>
+          <%= link_to "All Media", partner_videos_path(@partner) %>&nbsp;&nbsp;>&nbsp;&nbsp;<%= link_to @video.title, video_path(@video) %>&nbsp;&nbsp;>&nbsp;&nbsp;Comments
+          &
+          Captions (<%= @video.smilTexts_count %>
+          )&nbsp;&nbsp;|&nbsp;&nbsp;<%= link_to 'Hotspots', video_areas_path(@video) %>
+          (<%= @video.areas_count %>)
+      <% else %>
+          <%= link_to "All Media", partner_videos_path(@partner) %>&nbsp;&nbsp;>&nbsp;&nbsp;Comments & Captions
+          (<%= @partner.smilTexts.count %>
+          )&nbsp;&nbsp;|&nbsp;&nbsp;<%= link_to 'Hotspots', partner_areas_path(@partner) %>
+          (<%= @partner.areas.count %>)
+      <% end %>
+    </div>
+  </div>
+
+  <div id="itemList">
+    <div id="itemContent">
+      <div id="infoview" style="width:370px">
+        <div class="dashboardHeader">New Comment & Caption</div>
+
+        <% form_for :smilText, :url => video_smilTexts_path(@video) do |f| %>
+            <%= f.error_messages %>
+            <div class="infotitle">Type</div>
+            <div><%= f.select :text_style_id, SmilText::TEXT_STYLES %></div>
+            <div class="separator"></div>
+
+            <div class="infotitle">Text</div>
+            <div><%= f.text_field :body %></div>
+            <div class="separator"></div>
+
+            <div class="infotitle">Begin Timestamp</div>
+            <div><%= f.text_field :begin %></div>
+            <div class="separator"></div>
+
+            <div class="infotitle">End Timestamp</div>
+            <div><%= f.text_field :end %></div>
+            <div class="separator"></div>
+
+            <div class="infotitle">Top</div>
+            <div><%= f.text_field :top %></div>
+            <div class="separator"></div>
+
+            <div class="infotitle">Left</div>
+            <div><%= f.text_field :left %></div>
+            <div class="separator"></div>
+
+            <div class="infotitle">Right</div>
+            <div><%= f.text_field :right %></div>
+            <div class="separator"></div>
+
+            <div class="infotitle">Bottom</div>
+            <div><%= f.text_field :bottom %></div>
+            <div class="separator"></div>
+
+            <div class="infotitle">Link</div>
+            <div><%= f.text_field :href %></div>
+            <div class="separator"></div>
+
+            <div class="infotitle">Tags</div>
+            <div>N/A</div>
+            <div class="separator"></div>
+
+            <div class="infotitle">Author</div>
+            <div>guest@mobdub.com</div>
+            <div class="separator"></div>
+
+            <%= f.submit "Create" %>
+        <% end %>
+
+      </div>
+    </div>
+  </div>
+</div>

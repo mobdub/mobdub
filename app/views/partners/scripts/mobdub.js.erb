@@ -1,0 +1,146 @@
+<%= render :partial => 'partners/scripts/shared' %>
+
+function mdSetDubPlayer()
+{
+    var ytPlayerDiv = document.getElementById(ytPlayerDivName);
+    var ytPlayerWidth = 640;
+    var ytPlayerHeight = 380;
+
+    ytPlayerDiv.style.position = "relative";
+    ytPlayerDiv.style.width = ytPlayerWidth + "px";
+    ytPlayerDiv.style.height = ytPlayerHeight + "px";
+    ytPlayerDiv.innerHTML = "";
+
+    var videoURI = encodeURIComponent("<%= @video.uri %>");
+
+    // setup youtube player
+    var ytParams = {
+        allowScriptAccess: "always",
+        wmode: "transparent",
+        flashvars: "file=" + videoURI + "&autostart=true&displayclick=none&usefullscreen=false&bufferlength=1.0&volume=50"
+    };
+
+    var ytApiPlayerUrl = "<%= base_url %>/swfs/JWPlayer.swf"; //<%= partner_video_embed_src(@partner, @video) %>;
+    mdAppendFlashChild(ytPlayerDiv, "ytApiPlayer", ytApiPlayerUrl, ytPlayerWidth, ytPlayerHeight, false, ytParams);
+
+    var fsDiv = document.createElement("div");
+    fsDiv.id = "fsDiv";
+    fsDiv.style.position = "absolute";
+    var fsDivTop = ytPlayerHeight - 20;
+    var fsDivLeft = ytPlayerWidth - 55;
+    fsDiv.style.width = "20px";
+    fsDiv.style.height = "9px";
+    fsDiv.style.backgroundColor = "#FEFEFE";
+    fsDiv.style.top = fsDivTop + "px";
+    fsDiv.style.left = fsDivLeft + "px";
+    fsDiv.style.zIndex = 20;
+    ytPlayerDiv.appendChild(fsDiv);
+
+    var fsDiv2 = document.createElement("div");
+    fsDiv2.id = "fsDiv2";
+    fsDiv2.style.position = "absolute";
+    var fsDiv2Top = ytPlayerHeight - 11;
+    var fsDiv2Left = ytPlayerWidth - 55;
+    fsDiv2.style.width = "20px";
+    fsDiv2.style.height = "9px";
+    fsDiv2.style.backgroundColor = "#D9D9D9";
+    fsDiv2.style.top = fsDiv2Top + "px";
+    fsDiv2.style.left = fsDiv2Left + "px";
+    fsDiv2.style.zIndex = 20;
+    ytPlayerDiv.appendChild(fsDiv2);
+
+    // setup mobdub player
+    var mdParams = {
+        base: "<%= base_url %>/swfs/",
+        flashvars: "smilUrl=<%= video_url(@video) %>&aspectRatio=4:3",
+        allowScriptAccess: "always",
+        wmode: "transparent"
+    };
+
+    var mdPlayerUrl = "<%= base_url %>/swfs/MobdubPlayer.swf";
+    var mdPlayerHeight = ( ytPlayerWidth * 9 ) / 16; // maintain 4:3 aspect ratio
+    mdAppendFlashChild(ytPlayerDiv, "mdPlayer", mdPlayerUrl, ytPlayerWidth, mdPlayerHeight, false, mdParams);
+}
+
+function mdAppendFlashChild(parentDiv, childId, swfUrl, width, height, flashVars, params)
+{
+    // create placeholder div
+    var placeDiv = document.createElement("div");
+    placeDiv.id = childId + "PlaceDiv";
+
+    // position at top-left corner
+    placeDiv.style.position = "absolute";
+    placeDiv.style.top = "0px";
+    placeDiv.style.left = "0px";
+
+    // create flash player div
+    var flashDiv = document.createElement("div");
+    flashDiv.id = childId + "FlashDiv";
+
+    // setup div structure
+    placeDiv.appendChild(flashDiv);
+    parentDiv.appendChild(placeDiv);
+
+    var attributes = { id: childId };
+    var expressUrl = "<%= base_url %>/swfs/expressInstall.swf";
+    mdswfobject.embedSWF(swfUrl, flashDiv.id, width, height, "9.0.0", expressUrl, flashVars, params, attributes);
+}
+
+function playerReady(obj)
+{
+    ytPlayer = document.getElementById("ytApiPlayer");
+    mdPlayer = document.getElementById("mdPlayer");
+    ytPlayer.addModelListener("TIME", "updateytPlayerInfo");
+}
+
+var counter = 0;
+function updateytPlayerInfo(timeEvent)
+{
+    if (counter > 2)
+    {
+        try
+        {
+            var clockSecs = timeEvent["position"];
+            mdPlayer.seekTo(clockSecs);
+            counter = 0;
+        }
+        catch (e) {
+        }
+    }
+    else
+    {
+        counter++;
+    }
+}
+
+function onMobdubPlayerPause()
+{
+    try
+    {
+        if (ytPlayer)
+        {
+            ytPlayer.sendEvent("PLAY", "false");
+        }
+    }
+    catch(e) {
+    }
+}
+
+function mdPartnerPlayerStop()
+{
+    try
+    {
+        if (ytPlayer)
+        {
+            ytPlayer.sendEvent("STOP");
+        }
+    }
+    catch(e) {
+    }
+}
+
+var mdPlayer;
+var ytPlayer;
+var ytPlayerDivName = "<%= partner_player_div %>";
+
+mdSetDubPlayer();

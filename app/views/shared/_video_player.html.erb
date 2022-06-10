@@ -1,0 +1,30 @@
+<div>
+  <% if @partner %>
+      <div style='position: relative; margin-right: auto; margin-left: auto; width: 640px;'>
+        <div id="playerDiv" style="margin-left:auto;margin-right:auto">Loading video player...</div>
+        <div id="MobdubVideoComments" style="height:400px;"></div>
+      </div>
+
+      <% if @partner.script != 'worldnow.js.erb' %>
+          <script src="<%= script_partner_path( :id => @partner.to_param,
+                                                :video_id => @video.to_param, :player_div => 'playerDiv',
+                                                :format => 'js', :include_player => '1' ) %>" type="text/javascript"></script>
+      <% else %>
+          <script>
+              var uri = "<%= @video.uri %>";
+              var videoId = "<%= @video.id %>";
+              var mdEnv = "<%= base_url %>";
+              var partnerId = "<%= @partner.id %>";
+              var videoURL = "<%= @video.src %>";
+
+              var md_config =
+                {
+                    'comments_enabled': '1',
+                    'twitter_enabled': '1'
+                };
+          </script>
+
+          <%= @partner.embed_src.sub('{PARTNER_URL}', @partner.url) %>
+      <% end %>
+  <% end %>
+</div>

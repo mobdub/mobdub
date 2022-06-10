@@ -1,0 +1,43 @@
+<span class="sectionHeader" style="margin-left:12px; margin-top:10px">Partners</span>
+<style type=text/css>
+#dubCounter {
+	height:64px;
+}
+</style>
+
+<span class="pagination" style="text-align: center; margin-left:10px; padding-bottom:20px;">
+  <%= link_to 'Create New partner', new_partner_path %>
+</span>
+
+<table id="partnerListing">
+  <tr>
+    <th>Name</th>
+    <th>Url</th>
+    <th>Partner Number</th>
+    <th>Admin Url</th>
+    <th>Contract Type</th>
+  </tr>
+
+  <% for partner in @partners %>
+      <tr>
+        <td><%= link_to partner.name, partner %></td>
+        <td><a href="<%= h partner.url %>"><%= h partner.url %></a></td>
+        <td style="text-align:center"><%= h partner.id %></td>
+        <td width="220"><a href="/partners/<%= h partner.id %>"><%= base_url%>/partners/<%= h partner.id %></a></td>
+        <td><%= Partner::PLANS.index(partner.plan_id.to_i).to_s.capitalize() %></td>
+        <td width="40"><%= link_to 'Show', partner %></td>
+        <td><%= link_to 'Edit', edit_partner_path(partner) %></td>
+      </tr>
+      <tr>
+        <td colspan="8">
+          <div style="height:2px; border-bottom:1px dashed #CCCCCC"></div>
+        </td>
+      </tr>
+  <% end %>
+</table>
+
+<br/>
+
+<div class="pagination" style="padding-left:20px;padding-bottom:30px">
+  <%= link_to 'Create New partner', new_partner_path %>
+</div>

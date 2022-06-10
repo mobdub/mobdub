@@ -1,0 +1,43 @@
+/* Text & Links */
+#MobdubVideoComments .md-text {
+    color: #3C3940 !important;
+}
+#MobdubVideoComments .md-reader-info {
+    color: #3C3940 !important;
+}
+#MobdubVideoComments .md-comments-filter {
+    color: #3C3940 !important;
+}
+#MobdubVideoComments .md-text-link {
+    color: #106792 !important;
+}
+#MobdubVideoComments .md-link-more {
+    color: #106792 !important;
+}
+
+#twtCommentBody .md-text-username {
+    color: #106792 !important;
+}
+
+/* Tabs */
+#MobdubVideoComments .md-text-tab-link {
+    color: #999999 !important;
+}
+#MobdubVideoComments a.md-text-tab-link:hover {
+    color: #106792 !important;
+}
+#MobdubVideoComments a.md-text-tab-active {
+    color: #106792 !important;
+}
+
+/* Sign Up Screens */
+.md-text-link {
+    color: #106792 !important;
+}
+
+#MobdubVideoComments .ui-slider-handle, #MobdubVideoComments .ui-slider-handle a, #MobdubVideoComments .ui-slider-handle a:hover {
+    border-color: #106792 !important;
+    color: #106792 !important; 	
+    background: none repeat scroll 0 0 #106792 !important
+}
+

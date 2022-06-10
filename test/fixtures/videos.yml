@@ -1,0 +1,26 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  partner_id: <%= SETTINGS['mobdub_partner_id'] %>
+  title: First video
+  uri: video_one
+  options:
+    comments_custom_nil:
+    comments_custom_number: 420
+    comments_viewer_default: '{comments <viewer/> \ndefault for video}'
+two:
+  partner_id: 2 # boston
+  title: Second video
+  uri: video_two
+  options:
+    comments_custom_empty: ''
+    twitter_search: '?q=twitter&search&amp;for%23video'
+    twitter_tags: '#videotwo'
+three:
+  partner_id: 2 # boston
+  title: Third video
+  uri: video_three
+four:
+  partner_id: 3 # chicago
+  title: Fourth video
+  uri: video_four

@@ -1,0 +1,189 @@
+body {
+	background-color: #FFFFFF;
+	text-align: left;
+	font-family: "Arial", "Verdana";
+	font-size: 12px;
+	color: #999999;
+	margin: 0;
+	padding: 0;
+}
+img {
+	border: 0;
+	outline-style: none;
+	padding: 0;
+	margin: 0;
+}
+object {
+	outline: none;
+}
+form {
+	padding: 0;
+	margin: 0;
+}
+input {
+	padding: 0;
+	margin: 0;
+}
+label {
+	padding: 0;
+	margin: 0;
+	font-weight: bold;
+}
+span {
+	padding: 0;
+	margin: 0;
+}
+a {
+	color: #F68716;
+	font-weight: bold;
+	text-decoration: none;
+	outline: none;
+}
+a:link, a:visited { 
+	color: #F68716;
+}     
+a:hover { 
+	text-decoration: underline; 
+}  
+.sectionLabel {
+	color: #858585;
+	font-size: 1.6em;
+	font-weight: bold;
+	text-align: left;
+	margin-bottom: 5px;
+}
+.inputField {
+	height: 27px;
+	width: 264px;
+	color: #b4b4b4;
+	font-size: 1.1em;
+	text-align: left;
+	border: 2px solid #CCCCCC;
+	padding: 2px;
+	outline: none !important;
+}
+.inputLabel {
+	color: #CCCCCC;
+	font-size: 1.45em;
+	font-weight: bold;
+	text-align: left;	
+	vertical-align: middle;
+}
+.errorText {
+	color: #F15A24;
+	font-size: 0.8em;
+	font-weight: bold;
+	text-align: left;
+	margin-top: 0px;
+}
+input.fieldWithErrors {
+ 	margin-top: 0px;
+ 	border: 1px solid #F2F2F2;
+}
+
+input.disabled {
+	border: 1px solid #F2F2F2;
+	background-color: #F2F2F2;
+}
+input.required, textarea.required {
+}
+
+input.validation-failed, textarea.validation-failed {
+	border: 2px solid #F15A24;
+}
+input.validation-passed, textarea.validation-passed {
+}
+.validation-advice {
+	font-size: 0.65em;
+	color : #F15A24;
+}
+.custom-advice {
+	font-size: 0.7em;
+	color : #F15A24;
+}
+
+
+.form-row {
+	clear: both;
+	padding: 0.5em;
+}
+
+.addthis_toolbox .two_column 
+{
+    width: 280px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+}
+
+.addthis_toolbox .two_column a 
+{
+    padding: 11px 0 4px 38px;
+    position: relative;
+    width: 90px;
+    height: 48px;
+    display: block;
+    text-decoration: none;
+    color: #999999;
+    font-size: 1.2em;
+}
+
+.addthis_toolbox .two_column a:hover
+{
+    color: #F68716;
+    text-decoration: underline;
+}
+
+.addthis_toolbox .two_column span
+{
+    position: absolute;
+    left: 0;
+    top: 4px;
+}
+
+.addthis_toolbox .two_column  .top
+{
+    padding: 0 0 10px 0;
+    border-bottom: solid 1px #eee;
+    margin-bottom: 10px;
+    margin: 0 20px 10px 20px;
+}
+
+.addthis_toolbox .two_column  .more
+{
+    border-top: solid 1px #eee;
+    padding: 10px 0 0 0;
+    margin: 10px 20px 0 20px;
+    text-align: center;
+}
+
+.addthis_toolbox .two_column  .more a
+{
+    padding: 4px 0;
+    width: auto;
+}
+
+.addthis_toolbox .two_column .more span
+{
+    display: none;
+}
+
+.addthis_toolbox .two_column .column1
+{
+    width: 148px;
+    float: left;
+}
+
+.addthis_toolbox .two_column .column2
+{
+    width: 130px;
+    float: left;
+}
+
+.addthis_toolbox .two_column .clear
+{
+    clear: both;
+    padding: 0;
+    display: block;
+    height: 0;
+    width: 0;
+}

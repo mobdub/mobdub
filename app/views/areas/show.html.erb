@@ -1,0 +1,124 @@
+<% @page_title = "Show Selection Area - Mobdub" %>
+
+<% if params[:view] != "inline" %>
+    <div id="itemMain" style="width:730px">
+      <div id="menu">
+        <%= render :partial => '/shared/admin_nav', :locals => {:current_view => "areas"} %>
+        <div id="itemNav" class="itemNav">
+          <div id="searchFilter">
+
+          </div>
+        </div>
+      </div>
+
+      <div id="itemList">
+        <div id="itemTrail">
+          <% if @video %>
+              <div id="itemTitle"><%=h @video.title %></div>
+              <%= link_to "Comments & Captions", video_smilTexts_path(@video) %> (<%= @video.smilTexts_count %>)
+              <% unless @video.areas_count <= 0 %>&nbsp;&nbsp;|&nbsp;&nbsp;<%= link_to 'Hotspots', video_areas_path(@video) %>
+                  (<%= @video.areas_count %>)
+              <% end %>
+          <% end %>
+        </div>
+        <table align="center" width="100%">
+          <tr align="center">
+            <td width="646" align="center" valign="top">
+              <div class="tablecontainer" style="margin-top:10px;">
+                <div>
+                  <%= render :partial => '/shared/video_player' %>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <%= render :partial => '/shared/footer' %>
+    </div>
+
+    <div id="itemDetails" style="margin-left:747px;">
+      <div id="itemDetailsNav" class="itemNav itemDetailsNav">Hotspot Details</div>
+<% end %>
+
+<div id="infoview">
+
+  <div class="infotitle">Date</div>
+    <div class="date"><%= h @area.created_at %></div>
+  <div class="separator"></div>
+
+  <div class="infotitle">Text</div>
+  <div><%=h @area.title %></div>
+  <div class="separator"></div>
+
+  <div class="infotitle">Status</div>
+  <div>
+    <div id="cmtStatus<%= @area.id %>"><%= h Area::STATUSES.index(@area.status_id).to_s.humanize() %></div>
+  </div>
+  <div class="separator"></div>
+
+  <% unless @area.title_history.blank? %>
+      <div class="infotitle">Original Text</div>
+      <div><%=h @area.title_history %></div>
+      <div class="separator"></div>
+  <% end %>
+
+  <div class="infotitle">Video Title</div>
+  <div><%= link_to @video.title, partner_video_path(@partner, @video), :target => '_top' %></div>
+  <div class="separator"></div>
+
+  <div class="infotitle">Timestamp</div>
+  <div><%= @area.begin %></div>
+  
+  <%
+	root_visibility_css = "hidden"
+	if is_root 
+		root_visibility_css = "visible"
+	end
+	
+	admin_visibility_css = "hidden"
+	if is_admin 
+		admin_visibility_css = "visible"
+	end	
+	
+	spam_visibility = ""
+	notspam_visibility = "none"
+	if SmilText::STATUSES.index(@area.status_id).to_s == "spammed"
+		spam_visibility = "none"
+		notspam_visibility = ""
+	end
+  %>
+  	
+  <div class="pagination" style="text-align: center; margin-top:20px; position:relative; width:260px">
+	  	<span style="padding-bottom:3px;">
+	    	<%= link_to 'Edit', edit_video_area_path(@video, @area), :target => '_parent' if is_root %>
+		</span>	
+		
+	    <a class="moderate approve" style="color:#00b050; margin-left:10px; display:<%= spam_visibility %>" 
+	    	id="approve<%= @area.id %>" 
+	    	cmtId="<%= @area.id %>" 
+	    	posturl="<%= h moderate_video_area_path(@area.video_id, @area) %>?status=approved" 
+	    	action="Approved"><% if Area::STATUSES.index(@area.status_id).to_s != "approved" %>Approve<% end %>
+	    </a>
+	    <a class="moderate reject" style="color:#c0504d; margin-left:10px; display:<%= spam_visibility %>" 
+	    	id="reject<%= @area.id %>" 
+	    	cmtId="<%= @area.id %>" 
+	    	posturl="<%= h moderate_video_area_path(@area.video_id, @area) %>?status=rejected" 
+	    	action="Rejected"><% if Area::STATUSES.index(@area.status_id).to_s != "rejected" %>Reject<% end %>
+	    </a>
+	    
+  </div>
+
+</div>
+
+<% if params[:view] != "inline" %>
+    </div>
+<% end %>
+
+<% if params[:view] == "inline" %>
+<script type="text/javascript">
+    // Resize this iframe based on content height
+    $(document).ready(function() {
+        parent.resizeIframe($('#infoview').height());
+    });
+</script>
+<% end %>

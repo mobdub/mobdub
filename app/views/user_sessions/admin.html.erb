@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+  <title>Sign In - Mobdub</title>
+  <%= stylesheet_link_tag 'mdadmin' %>
+  <%= stylesheet_link_tag 'themes/mobdub/jquery-ui-1.7.1.custom.css' %>
+  <%= javascript_include_tag "login_all_min" %>
+</head>
+<body>
+
+<div id="page">
+  <div id="top" style="position: relative;">
+    <div id="logo">
+      <a href="/index.html"><img src="/images/mdLogoAdmin.jpg" alt="Mobdub - Beta"/></a>
+    </div>
+    <div id="dubCounter" style="height:64px"></div>
+    <div id="pagebar"></div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div id="maincontent" class="maincontent">
+    <div id="MobdubVideoComments">
+    <div id="loginBox">
+      <div class="ui-widget ui-widget-content ui-corner-all" style="-webkit-border-radius: 12px;-moz-border-radius:12px; border-width:4px; width:360px; margin:60px auto;">
+        <div class="inputLabel" style="margin-left:50px;">
+          <% form_for @user_session, :url => user_sessions_path(:reaction => :admin, :reroute => params[:reroute]) do |f| %>
+              <div style="margin-bottom:  15px !important; margin-top: 25px !important">
+                <div style="margin-bottom: 3px;"><%= f.label :login, "Username" %></div>
+                <div><%= f.text_field :login, :class => "inputField validate-required-username" %></div>
+                <div id="errUserName" class="errorText"></div>
+              </div>
+              <div style="margin-bottom: 15px !important">
+                <div style="margin-bottom: 3px;"><%= f.label :password %></div>
+                <div><%= f.password_field :password, :class => "inputField validate-required-password" %></div>
+                <div id="errPassword" class="errorText"></div>
+              </div>
+              <div style="margin-bottom:15px !important">
+                <input id="user_session_submit"
+                       style="height:22px; outline-style:none; width:73px;"
+                       type='image'
+                       onmouseout="this.src='/images/signInOrange.gif';"
+                       onmouseover="this.src='/images/signInGray.gif';"
+                       src="/images/signInOrange.gif"
+                       value="Submit"
+                       name="commit">
+                </input>
+              </div>
+              <div style="font-size: 0.7em; margin-bottom: 25px;">
+                <div style="vertical-align: middle;">
+                  <input type="hidden" value="false" name="user_session[remember_me]"/>
+                  <input style="vertical-align: middle;" type="checkbox" value="true" name="user_session[remember_me]" id="user_session_remember_me"/>
+                  <label style="vertical-align: middle; color:#838383" for="user_session_remember_me">Remember
+                    me</label>
+                </div>
+              </div>
+
+              <script>
+                  function mdGetError()
+                  {
+                      var errorObj =
+                      {
+                          "userName": '<%= f.error_message_on :login, :prepend_text => "Username ", :append_text => ".",  :css_class => "errorText" %>',
+                          "password": '<%= f.error_message_on :password, :prepend_text => "Password ", :append_text => ".", :css_class => "errorText" %>'
+                      };
+
+                      return errorObj;
+                  }
+
+                  function mdDisplayError(eObj)
+                  {
+                      if (eObj)
+                      {
+                          if (eObj.userName != '')
+                          {
+                              $("errUserName").update(eObj.userName);
+                              $("user_session_login").addClassName("validation-failed");
+                          }
+                          if (eObj.password != '')
+                          {
+                              $("errPassword").update(eObj.password);
+                              $("user_session_password").addClassName("validation-failed");
+                          }
+                      }
+                  }
+
+                  function mdOnFormValidate(passed, formId)
+                  {
+                      formValidationPassed = passed;
+
+                      var serverErr = $$("div.errorText");
+                      serverErr.each(Element.hide);
+                  }
+
+                  mdDisplayError(mdGetError());
+                  //var formValidationPassed = true;
+                  new Validation('new_user_session', { onFormValidate: function(passed, formId) {
+                      mdOnFormValidate(passed, formId)
+                  } }); //prototype form validation plugin
+              </script>
+
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+ </div>
+</div>
+
+</body>
+</html>

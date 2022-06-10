@@ -1,0 +1,40 @@
+mobdub_admin:
+  user: mobdub_admin
+  partner_id: <%= SETTINGS['mobdub_partner_id'] %>
+  role_id: <%= Permission::ROLES[:admin] %>
+
+mobdub_root:
+  user: mobdub_root
+  partner_id: <%= SETTINGS['mobdub_partner_id'] %>
+  role_id: <%= Permission::ROLES[:root] %>
+
+boston_writer:
+  user: boston_writer
+  partner_id: 2 # boston
+  role_id: <%= Permission::ROLES[:writer] %>
+
+boston_editor:
+  user: boston_editor
+  partner_id: 2 # boston
+  role_id: <%= Permission::ROLES[:editor] %>
+
+boston_admin:
+  user: boston_admin
+  partner_id: 2 # boston
+  role_id: <%= Permission::ROLES[:admin] %>
+  
+boston_manager:
+  user: boston_chicago_manager
+  partner_id: 2 # boston
+  role_id: <%= Permission::ROLES[:admin] %>
+
+chicago_manager:
+  user: boston_chicago_manager
+  partner_id: 3 # chicago
+  role_id: <%= Permission::ROLES[:admin] %>
+    
+chicago_admin:
+  user: chicago_admin
+  partner_id: 3 # chicago
+  role_id: <%= Permission::ROLES[:admin] %>
+  

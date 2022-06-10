@@ -1,0 +1,694 @@
+<% @page_title = "Settings - Mobdub" %>
+<% options = @partner.merged_options %>
+<%
+	root_visibility_css = "hidden; height:0"
+	if is_root 
+		root_visibility_css = "visible"
+	end
+	
+	admin_visibility_css = "hidden; height:0"
+	if is_admin 
+		admin_visibility_css = "visible"
+	end	
+%>
+
+<script>
+    function onMobdubCommentsReady()
+    {
+        // Twitter settings
+        $('#MobdubVideoComments').css('height', '415px');
+        $('#twtrCommentSection').css('height', '315px');
+        $('#MobdubVideoComments').show();
+        
+        var options = {};
+        options.type = 'video';
+        options.layout = 'scrolling';
+        options.comments_enabled = '0';
+        options.twitter_enabled = '2';
+        options.comments_custom_css_text_color = '';
+        options.comments_custom_css_link_color = '#538ED5';
+        options.twitter_search_url = formatTwtSearchUrl( $('#partner_options_twitter_search').val() );
+        options.partner_name = '<%=h escape_javascript(@partner.name) %>';
+        options.video_title = '<%=h escape_javascript(@partner.videos.last.title) if @partner.videos.last %>';
+        options.twitter_user = $('#partner_options_twitter_user').val();
+        options.twitter_tags = $('#partner_options_twitter_tags').val();
+        options.twitter_reader_default_text = $('#partner_options_twitter_default_reader_text').val();
+
+        Mobdub.Comments.loadSettings(options);
+
+		// From production
+        Mobdub.Comments.enableTab({}, {"index":1});
+        $('.ui-slider-handle').show();
+        $('.ui-slider-handle').css('visibility', 'visible');
+		$('#twtc').click();
+		/*
+        $('.ui-slider-handle').show();
+        $('.ui-slider-handle').css('visibility', 'visible');
+        $('#twtc').hide(); // hide twitter tab header
+        //Mobdub.Comments.enableTab({}, {"index":1});
+        //$('#twtc').click();
+        */
+    }
+</script>
+
+<!-- scrub the twitter css for admin UI -->
+<style type="text/css">
+  #MobdubVideoComments .vdoComment {
+    padding-bottom: 0;
+    padding-top: 0;
+
+}
+</style>
+
+<div id="itemMain" style="width:97%">
+  <div id="menu">
+    <%= render :partial => '/shared/admin_nav', :locals => {:current_view => "settings"} %>
+    <div id="itemNav" class="itemNav"></div>
+  </div>
+
+  <div id="itemList">
+    <table>
+      <tr valign="top">
+        <td>
+          <div id="itemSubNav">
+            <div id="generalSubNav" class="highlight itemSubNavHeader" onclick="showSettingsPane('general')">General</div>
+            <div class="separator"></div>
+
+            <div id="commentsSubNav" class="highlight itemSubNavHeader" onclick="showSettingsPane('comments')">Comments</div>
+            <div class="separator"></div>
+
+            <div id="dubsSubNav" class="highlight itemSubNavHeader" onclick="showSettingsPane('dubs')">Annotations</div>
+            <div class="separator"></div>
+
+            <div id="moderationSubNav" class="highlight itemSubNavHeader" onclick="showSettingsPane('moderation')">Moderation</div>
+            <div class="separator"></div>
+
+            <div id="twitterSubNav" class="highlight itemSubNavHeader" onclick="showSettingsPane('twitter')">Twitter</div>
+            <div class="separator"></div>
+
+            <% if is_admin %>
+	            <div id="facebookSubNav" class="highlight itemSubNavHeader" onclick="showSettingsPane('facebook')">Facebook</div>
+	            <div class="separator"></div>
+	
+	            <div id="servicesSubNav" class="highlight itemSubNavHeader" onclick="showSettingsPane('services')">Third Party Services</div>
+	            <div class="separator"></div>
+            <% end %>
+
+            <% if is_root %>
+                <div id="ssoSubNav" class="highlight itemSubNavHeader" onclick="showSettingsPane('sso')">Registration</div>
+                <div class="separator"></div>
+            <% end %>
+          </div>
+        </td>
+        <td>
+          <div id="edit">
+
+            <div id="infoview" style="min-height:550px; margin-left:40px">	
+            
+              <%= error_messages_for :partner %>
+              <% form_for @partner, :url => partner_path(@partner), :html => { :id => "edit_partner", :name => "edit_partner" }  do |f| %>
+                  <%= f.error_messages %>
+                  <div id="flashNotice" class="flashNotice"><%= flash[:notice] %></div>
+                  
+                  <div id="generalSettings" class="settingDetails">
+                    <div class="dashboardHeader">General Settings</div>
+
+					<div class="infotitle">Plan</div>
+					<% if is_root %>           
+                    	<div><%= f.select :plan_id, partner_plan_list %></div>
+                    <% else %>
+                    	<div><%= Partner::PLANS.index(@partner.plan_id.to_i).to_s.capitalize() %></div>
+                    <% end %>
+                    
+                    <div class="infotitle">Partner</div>
+                    <div><%= f.text_field :name, {:disabled => "true"} %></div>
+
+                    <div class="infotitle">URL</div>
+                    <div><%= f.text_field :url %></div>
+
+                    <div class="infotitle">Link URL</div>
+                    <div><%= f.text_field :link_url %></div>
+
+                    <% if is_root %>
+                        <div class="infotitle">Script</div>
+                        <div><%= f.text_field :script %></div>
+
+                        <div class="infotitle">Pattern</div>
+                        <div><%= f.text_field :pattern %></div>
+
+                        <div class="infotitle">Embed Code</div>
+                        <div><%= f.text_area :embed_src %></div>
+                    <% end %>
+                  </div>
+
+ 				 <div id="moderationSettings" class="settingDetails">
+                    <div class="dashboardHeader">Moderation Settings</div>
+                    <div class="infotitle">Minimum Publishing Status</div>
+                    <div><%= f.select :min_publish_status, moderation_status_list %></div>
+
+                    <div class="infotitle">Quarantine If Flagged</div>
+                    <div><%= f.select :max_flag_count, moderation_flag_count_list, {:include_blank => 'None'} %></div>
+
+					<div class="infotitle">Notifications</div>
+                    	<% if @partner.notices.length() <= 1 %> 
+							<div id="notifications_text">No notifications are configured. Add one by selecting a status and clicking the plus icon.</div>
+						<% end %>	
+					<div>
+						<table>
+							<tr>
+								<td>
+									<select id="partner_notifications" name="unused_field">
+										<option value="20">Quarantined</option>
+										<option value="25">Spammed</option>
+										<option value="30">Flagged</option>
+										<option value="40">Sanitized</option>
+										<option value="50">Created</option>
+									</select>
+								</td>
+								<td><span title="Add a notification list." id="notifications-add"><img id="add-notification-button" style="margin-left:5px" src="/images/add-gray.png" state="inactive" /></span></td>
+							</tr>
+						</table>
+					</div>
+
+					<!-- list notifications fields -->
+					<input name="partner[notices]['']" type="hidden" value="" /> <!-- need to pass empty value in case everything is deleted notify as we only post valid fields -->
+					<% Moderation::STATUSES.each do |key, value| %>
+					<div id="notifications_field_<%= key.to_s %>" style="display:none; margin-bottom:0px;margin-top:0px">
+					<div class="infotitle" style="color:#7F7F97"><%= key.to_s.capitalize() %></div>
+					<table>
+					  <tr>
+						<td>	  
+	                    	<div title="Email addresses seperated by commas."><%= text_field 'partner[notices]', 'status_' + key.to_s, :value => @partner.notices['status_' + key.to_s], :class => 'setting validate-emails', :status => key.to_s %></div>
+						</td>
+						<td><div class="notifications-delete action-button" notification_status="<%= key %>"><img style="margin-left:7px" src="/images/delete.png" /></div></td>
+						<td><div class="adminFieldError" id="notification_error_<%= key.to_s %>"></div><td>
+					  </tr>
+					</table>
+					</div>
+					<% end %>
+                  </div>
+
+                  <div id="dubsSettings" class="settingDetails">
+                    <div class="dashboardHeader">Annotation Settings</div>	
+                    	<div id="dubs_notifications"></div>		
+	                    <div id="dubs_enabled_title" class="infotitle">Enable Annotations</div>
+	                    <div id="dubs_enabled_select"><%= select 'partner[options]', :dubs_enabled, {:Yes => "1", :No => "0"}, {:selected => options[:dubs_enabled]} %></div>
+						<div id="dubs_enabled_text"></div>
+						
+	                    <div class="infotitle">Show Annotations When Player Loads</div>
+	                    <div id="dubs_display_enabled_select"><%= select 'partner[options]', :dubs_display, {:Yes => "1", :No => "0"}, {:selected => options[:dubs_display]} %></div>                 
+                  		<div id="dubs_display_enabled_text"></div>
+                  </div>
+
+                  <div id="commentsSettings" class="settingDetails">
+                    <div class="dashboardHeader">Comments Settings</div>
+						<div id="comments_notifications"></div>
+	                    <div id="comments_enabled_title" class="infotitle">Enable Comments</div>
+	                    <div id="comments_enabled_select"><%= select 'partner[options]', :comments_enabled, {"Yes" => "1", "No" => "0"}, {:selected => options[:comments_enabled]} %></div>
+						<div id="comments_enabled_text"></div>
+						
+	                    <div class="infotitle">Allow Guest Comments</div>
+	                    <div id="partner_guest_allowed_select"><%= f.select :guest_allowed, {:Yes => true, :No => false}%></div>
+						<div id="partner_guest_allowed_text"></div>
+						
+	                    <div class="infotitle">Input Box Default Text</div>
+	                    <div><%= text_field 'partner[options]', :comments_editor_default_text, :value => options[:comments_editor_default_text], :class => "setting partnerSetting" %></div>
+	
+	                    <div class="infotitle">Reader Default Text (When No Comments Exist)</div>
+	                    <div><%= text_field 'partner[options]', :comments_reader_default_text, :value => options[:comments_reader_default_text], :class => "setting partnerSetting" %></div>
+	
+	                    <div class="infotitle">Comments Per Page</div>
+	                    <div><%= f.text_field :max_per_page %></div>
+	                    
+	                    <div class="infotitle">Terms of Service</div>
+	                    <div><%= text_area 'partner[options]', :comments_terms_of_service, :value => options[:comments_terms_of_service], :class => "setting partnerSetting" %></div>
+	
+	                    <div class="infotitle">Text Color</div>
+	                    <div><%= text_field 'partner[options]', :comments_custom_css_text_color, :value => options[:comments_custom_css_text_color], :class => "setting partnerSetting colorField" %></div>
+	
+	                    <div class="infotitle">Link Color</div>
+	                    <div><%= text_field 'partner[options]', :comments_custom_css_link_color, :value => options[:comments_custom_css_link_color], :class => "setting partnerSetting colorField" %></div>
+	
+	                    <div class="infotitle">Custom CSS File URL</div>
+	                    <div><%= text_field 'partner[options]', :comments_custom_css_url, :value => options[:comments_custom_css_url], :class => "setting partnerSetting" %></div>
+	
+	                    <% if is_root %>
+	                        <div class="infotitle">Read Rate</div>
+	                        <div><%= text_field 'partner[options]', :comments_reader_read_rate, :value => options[:comments_reader_read_rate], :class => "setting partnerSetting" %></div>
+	
+	                        <div class="infotitle">Minimum Scroll Time (milliseconds)</div>
+	                        <div><%= text_field 'partner[options]', :comments_reader_min_scroll_time, :value => options[:comments_reader_min_scroll_time], :class => "setting partnerSetting" %></div>
+	
+	                        <div class="infotitle">Scroll Animation (milliseconds)</div>
+	                        <div><%= text_field 'partner[options]', :comments_reader_scroll_animation, :value => options[:comments_reader_scroll_animation], :class => "setting partnerSetting" %></div>
+	                    <% end %>
+                    
+                  </div>
+
+                  <div id="twitterSettings" class="settingDetails">
+                    <div class="dashboardHeader">Twitter Settings</div>
+                    	<div id="twitter_notifications"></div>
+	                    <div id="twitter_enabled_title" class="infotitle">Enable</div>
+	                    <div id="twitter_enabled_select"><%= select 'partner[options]', :twitter_enabled, {:Yes => "1", :No => "0"}, {:selected => options[:twitter_enabled]} %></div>
+						<div id="twitter_enabled_text"></div>
+						
+	                    <div class="infotitle">Reader Default Text (When No Comments Exist)</div>
+	                    <div><%= text_field 'partner[options]', :twitter_reader_default_text, :value => options[:twitter_reader_default_text], :class => "setting partnerSetting" %></div>
+	
+	                    <div class="infotitle">Reply To</div>
+	                    <div><%= text_field 'partner[options]', :twitter_user, :value => options[:twitter_user], :class => "setting partnerSetting" %></div>
+	
+	                    <div class="infotitle">Hashtag(s) to include in reply separated by spaces</div>
+	                    <div><%= text_field 'partner[options]', :twitter_tags, :value => options[:twitter_tags], :class => "setting partnerSetting" %></div>
+	
+	                    <div class="infotitle">Search Parameters</div>
+	                    <div style='margin-bottom:2px;'><%= text_area 'partner[options]', :twitter_search, :value => options[:twitter_search], :class => "setting partnerSetting" %></div>
+	                    <div style='width:367px;font-size:0.9em;'>Special macros may be used to dynamically populate the
+	                      Twitter reader. <b>%title%</b> will return results
+	                      that match a Twitter search for the title of the video being played. <b>%reply_to%</b> and
+	                      <b>%hashtags%</b> will
+	                      return results matching the reply to and hashtag(s) specified above in your default Twitter
+	                      settings. <b>%partner%</b> will return the Partner name. For example, %title%%hashtags%.
+	                    </div>
+	
+	                    <div><%= hidden_field 'partner[options]', :twitter_search_url, :value => options[:twitter_search_url] %></div>
+	
+	                    <div class="infotitle">Search URL Help
+	                      <!--<p><br/>
+	                      <br />%title% = The title of the video that is playing.
+	                      <br />%partner% = The partner name: <%= @partner.name %>.
+	                      <br />%hash_tags% = The hashtags specified in the Hashtag field.-->
+	                      <p><br/>
+	                        <a href='javascript: updateTwitterResults(true)'>Refresh results</a> |
+	                        <a href='javascript: showTwitterResults(true, "generate");'> Advanced options</a> |
+	                        <a href='javascript: showTwitterResults(true, "guide");'> Search operator guide</a>
+	                      </p>
+	                    </div>
+	
+	                    <div id="MobdubVideoComments" class="searchResults" style="width:644px; height:415px !important;"></div>
+	                    <script>var mdEnv = "<%= base_url %>";</script>
+                  </div>
+
+                  <div id="facebookSettings" class="settingDetails" style="visibility:<%= admin_visibility_css %>">
+                    <div class="dashboardHeader">Facebook</div>
+                    	<div id="facebook_notifications"></div>
+						<div id="facebook_enabled_title" class="infotitle">Enable Comments</div>
+	                    <div id="facebook_enabled_select"><%= select 'partner[options]', :facebook_enabled, {:Yes => "1", :No => "0"}, {:selected => options[:facebook_enabled]} %></div>
+						<div id="facebook_enabled_text"></div>
+						
+						<div id="facebook_enabled_login" class="infotitle">Enable Login</div>
+	                    <div id="facebook_enabled_login"><%= select 'partner[options]', :facebook_login_enabled, {:Yes => "1", :No => "0"}, {:selected => options[:facebook_login_enabled]} %></div>
+						<div id="facebook_enabled_text"></div>
+						
+	                    <div class="infotitle">API Key</div>
+	                    <div><%= f.text_field :facebook_key, :class => "setting partnerSetting" %></div>
+	
+	                    <div class="infotitle">Application Secret</div>
+	                    <div><%= f.text_field :facebook_secret, :class => "setting partnerSetting" %></div>
+                  </div>
+
+                  <div id="servicesSettings" class="settingDetails">
+                    <div class="dashboardHeader">Third Party Services Settings</div>
+
+                    <div class="infotitle">Bit.ly User Account</div>
+                    <div><%= text_field 'partner[options]', :comments_bitlyAPI_login, :value => options[:comments_bitlyAPI_login], :class => "setting partnerSetting" %></div>
+
+                    <div class="infotitle">Bit.ly API Key</div>
+                    <div><%= text_field 'partner[options]', :comments_bitlyAPI_key, :value => '*****************', :class => "hidden" %></div>
+                  </div>
+           
+                  <div id="ssoSettings" class="settingDetails" style="visibility:<%= root_visibility_css %>">
+                    <div class="dashboardHeader">Registration Settings</div>
+
+                    <div class="infotitle">Enable SSO</div>
+                    <div><%= f.select :sso_enabled, {:Yes => true, :No => false}%></div>
+
+                    <div class="infotitle">SSO Encrypted Cookie</div>
+                    <div><%= f.text_field :sso_cookie, :class => "setting partnerSetting" %></div>
+
+                    <div class="infotitle">SSO Plain Text Cookie</div>
+                    <div><%= text_field 'partner[options]', :sso_cookie_plaintext, :value => options[:sso_cookie_plaintext], :class => "setting partnerSetting" %></div>
+
+                    <div class="infotitle">SSO Mapping</div>
+                    <div><%= f.text_field :sso_mapping, :class => "setting partnerSetting" %></div>
+
+                    <div class="infotitle">SSO Encrypt Key</div>
+                    <div><%= f.text_field :sso_encrypt_key, :class => "setting partnerSetting" %></div>
+
+                    <div class="infotitle">SSO Encrypt IV</div>
+                    <div><%= f.text_field :sso_encrypt_iv, :class => "setting partnerSetting" %></div>
+
+                    <div class="infotitle">SSO Cookie Screen Name Field</div>
+                    <div><%= text_field 'partner[options]', :sso_cookie_screen_name, :value => options[:sso_cookie_screen_name], :class => "setting partnerSetting" %></div>
+
+                    <div class="infotitle">Login Input Field Label</div>
+                    <div><%= text_field 'partner[options]', :sso_login_label, :value => options[:sso_login_label], :class => "setting partnerSetting" %></div>
+
+                    <div class="infotitle">Hide Remember Me Checkbox</div>
+                    <div><%= select 'partner[options]', :sso_hide_remember_me, {:Yes => "1", :No => "0"}, {:selected => options[:sso_hide_remember_me]} %></div>
+
+                    <div class="infotitle">Sign In URL</div>
+                    <div><%= text_field 'partner[options]', :sso_sign_in_url, :value => options[:sso_sign_in_url], :class => "setting partnerSetting" %></div>
+
+                    <div class="infotitle">Sign Up URL</div>
+                    <div><%= text_field 'partner[options]', :sso_sign_up_url, :value => options[:sso_sign_up_url], :class => "setting partnerSetting" %></div>
+
+                    <div class="infotitle">Sign Out URL</div>
+                    <div><%= text_field 'partner[options]', :sso_sign_out_url, :value => options[:sso_sign_out_url], :class => "setting partnerSetting" %></div>
+
+                    <div class="infotitle">Sign Up Function Call</div>
+                    <div><%= text_field 'partner[options]', :sso_sign_up_function, :value => options[:sso_sign_up_function], :class => "setting partnerSetting" %></div>
+
+                    <div class="infotitle">Sign Out Function Call</div>
+                    <div><%= text_field 'partner[options]', :sso_sign_out_function, :value => options[:sso_sign_out_function], :class => "setting partnerSetting" %></div>
+
+                    <div class="infotitle">Reset Login Status Function Call</div>
+                    <div><%= text_field 'partner[options]', :sso_authenticate_function, :value => options[:sso_authenticate_function], :class => "setting partnerSetting" %></div>
+
+                    <div class="infotitle">Forgot Password URL</div>
+                    <div><%= text_field 'partner[options]', :sso_forgot_password_url, :value => options[:sso_forgot_password_url], :class => "setting partnerSetting" %></div>
+
+                  </div>
+
+                  <div id="actionButtons" class="pagination" style="text-align:center; margin-top:40px">
+                    <%= link_to 'Unlock & Edit', "javascript: unlockForm()", {:id => "unlock"} if is_admin %>
+                    <%= link_to_function "Save", "saveSettings()", {:id => "update"} %>
+                    <%= link_to_function "Restore Defaults", "resetSettings()", {:id => "reset"} if is_root %>
+                    <%= link_to_function "Cancel", "lockForm()", {:id => "cancel"} %>
+                  </div>
+
+                  <div id="legend" style='color:#C0504D; margin-top:50px; margin-left:32px'></div>
+
+                  </div>
+
+              <% end %>
+              </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <%= render :partial => '/shared/footer' %>
+
+</div>
+
+<!-- twitter box only if permitted -->
+<script src='/javascripts/videocomments.js'></script>
+
+<script>
+    var inherited_options = <%= @partner.inherited_options.to_json %>;
+    var partner_options = <%= @partner.options.to_json %>;
+    var merged_options = <%= options.to_json %>;
+
+    $(document).ready(function() {
+        lockForm();
+
+    <% if params[:setting] %>
+        showSettingsPane('<%= params[:setting] %>');
+    <% else %>
+        showSettingsPane('general');
+    <% end %>
+		
+	    // Mark inherited settings
+	    $(".setting partnerSetting").each(function (i) {
+	        var name = $(this).attr("id").replace("partner_options_", "");
+	
+	        if (inherited_options[name] == merged_options[name])
+	        {
+	            $(this).addClass("inherited");
+	            $(this).after("<span style='color:#C0504D'> *</span>");
+	        }
+	    });
+	    
+
+		<% if (!allow_comments && !is_root) %>
+	  		disableFeature('comments');
+	  	<% end %>
+	
+		<% if (!allow_annotations && !is_root) %>
+	  		disableFeature('dubs');
+	  	<% end %>
+		
+	  	<% if (!allow_twitter && !is_root) %>
+	  		disableFeature('twitter');
+	  	<% end %>
+	
+	  	<% if (!allow_facebook && !is_root) %>
+	  		disableFeature('facebook');
+	  	<% end %>
+	
+		// Notifications
+		//	Iterate the ruby notice hash and render the fields accordingly
+		<% Moderation::STATUSES.each do |key, value| %>
+			<% if @partner.notices['status_' + key.to_s] %>
+				$('#notifications_field_<%= key %>').show();
+			<% end %>
+		<% end %>
+		
+		// Bind the onchange event to the notifications status pull down
+		$("#notifications-add").bind('click', function (i) {
+			if ($('#add-notification-button').attr('state') == 'active')
+			{
+				var status = $("#partner_notifications option:selected").text().toLowerCase();
+				displayNotificationField(status, true);
+			}
+	    });
+		$(".notifications-delete").bind('click', function (i) {
+			hideNotificationField($(this).attr('notification_status'), true);
+	    });
+    });
+    
+	function validateEmail(email) { 
+	    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	    return re.test(email);
+	}
+	
+    function saveSettings()
+    {
+		var valid = true;
+		// <<<< Notifications
+		// Validate notification email lists
+		$('.validate-emails:visible').each(function(index) {
+			// Remove empty lists before posting
+			if (jQuery.trim($(this).val()) == '')
+			{
+				//log($(this).attr('marked_for_delete'));
+				hideNotificationField($(this).attr('status'));
+			}
+			else
+			{
+				var email_list = $(this).val().split(","); 
+				var email, list = '';
+				for(var e in email_list)
+				{
+					email = jQuery.trim(email_list[e]);
+
+					if(email != '' && validateEmail(email))
+					{
+						list = list + email + ", ";	
+					}
+					else
+					{
+						valid = false;
+						$('#notification_error_' + $(this).attr('status')).html('This list contains invalid email addresses.');
+						$(this).focus();
+						return false;
+					}										
+				}	
+
+				list = list.substring(0, list.length - 2);	
+
+				if (list != '' && valid)
+				{
+					$('#notification_error_' + $(this).attr('status')).html('')
+					$(this).val(list);
+				}	
+			}
+
+		});
+		// >>>> Notifications
+		
+		if (valid)
+		{
+			$('form#edit_partner').attr('action', $('form').attr('action') + '?setting=' + activePane);  // Append the active setting qs
+
+	        $('#login_with_oauth').attr('disabled', 'disabled');      // IE bug - submits all form content
+	        $('#commentTextArea').attr('disabled', 'disabled');       // IE bug - submits all form content
+
+	        $('#partner_options_twitter_search_url').val( formatTwtSearchUrl( $('#partner_options_twitter_search').val() ));
+
+	        // Do not submit empty values for form fields of class 'settings'
+	        $(".setting").each(function (i) {
+	            if ($(this).val() == '')
+	            {
+	            	$(this).attr('disabled', 'disabled'); 
+	            }
+	        }); 
+	        // Only submit field values if they don't contain '*' of class 'hidden'
+	        $(".hidden").each(function (i) {
+	            if ($(this).val().indexOf('*') >= 0)
+	            {
+	            	$(this).attr('disabled', 'disabled'); 
+	            }
+	        });
+	
+			$('form#edit_partner').submit()
+		}
+    }
+    
+    function disableFeature(featureName)
+    {    	
+		$('#partner_options_' + featureName + '_enabled').hide();
+		$('#' + featureName + '_enabled_title').hide();
+		$('#' + featureName + '_notifications').html('Contact us to upgrade your plan and enable this feature.');  
+    }
+    
+    var activePane = 'general';
+    function showSettingsPane(name)
+    {
+        lockForm();
+        activePane = name;
+        // Remove previous selections
+        $(".rowSelected").removeClass("rowSelected");
+        $(".settingDetails").hide();
+
+        // Enable selected pane
+        $('#' + name + 'Settings').show();
+        $('#' + name + 'SubNav').addClass("rowSelected");
+
+        // Add msg if inherited options exist for this pane
+        if ($('#' + name + 'Settings *').hasClass('inherited'))
+        {
+            $('#legend').text('* This setting currently contains a default system value.');
+            $('#legend').show()
+        }
+        else
+        {
+            $('#legend').hide();
+        } 
+        
+        // Temp solution to fix slider not showing for twitter viewer
+       	if (activePane == 'twitter') updateTwitterResults();
+    }
+
+    function updateTwitterResults()
+    {
+        onMobdubCommentsReady();
+    }
+
+    function showTwitterResults(show, url)
+    {
+        twtUrl = $("#partner_options_twitter_search_url").val();
+
+        if (url == "guide")
+        {
+            twtUrl = "http://search.twitter.com/operators";
+            $("#twitter_feed_display_iframe").attr("height", "730");
+            window.open(twtUrl);
+        }
+        if (url == "generate")
+        {
+            twtUrl = "http://search.twitter.com/advanced";
+            /*$("#twitter_feed_display_iframe").attr("width", "795");*/
+            window.open(twtUrl);
+        }
+    }
+
+    function lockForm()
+    {
+		// <<<< Notifications
+		$('#add-notification-button').attr('src', '/images/add-gray.png').css('cursor', 'auto');
+		$('#add-notification-button').attr('state', 'inactive');
+		$('.validate-emails:visible').each(function(index) {
+			if( ($('#notifications_field_' + $(this).attr('status')).attr('isNewlyCreated') == 'true') || $(this).val() == '') 
+			{	
+				hideNotificationField($(this).attr('status'));				
+			}
+			else
+			{
+				displayNotificationField($(this).attr('status'));
+			}
+		});		
+		// Remove action indicators
+		$('.action-button').each(function (i) {
+			$(this).hide();
+            $(this).css('cursor', 'auto');
+        });
+		// >>>> Notifications
+		
+        // Restore merged options
+        $(".partnerSetting").each(function (i) {
+            var name = $(this).attr("id").replace("partner_options_", "");
+            $(this).attr("value", merged_options[name]);
+        });
+
+        $(".resetButton").remove();
+        $("input,textarea,checkbox,select").attr("disabled", "disabled");
+        $("#update, #cancel, #reset").hide();
+        $("#unlock").show(); 
+    }
+
+    function unlockForm()
+    {
+		// <<<< Notifications
+		$('#add-notification-button').attr('src', '/images/add.png').css('cursor', 'pointer');
+		$('#add-notification-button').attr('state', 'active');
+		// Remove action indicators
+		$('.action-button').each(function (i) {
+			$(this).show();
+            $(this).css('cursor', 'pointer');
+        });
+		// >>>> Notifications
+		
+        $("#unlock, #flashNotice").hide();
+        $("#update, #cancel, #reset").show();
+        $("input,textarea,checkbox,select").removeAttr("disabled");
+
+        $(".partnerSetting").each(function (i) {
+            var name = $(this).attr("id").replace("partner_options_", "");
+
+            if (inherited_options[name] != merged_options[name])
+            {
+                //should be checked against inherited list to make sure if a default exists?
+                $(this).after("<span class='pagination resetButton'><a onclick='resetSettings(\"" + name + "\"); return false;' href='#' style='display: inline;'>Restore Default</a></span>");
+            }
+        });
+    }
+
+    function resetSettings(name)
+    {
+        if (!name)
+        {
+            $(".partnerSetting").each(function (i) {
+                var name = $(this).attr("id").replace("partner_options_", "");
+                $(this).attr("value", inherited_options[name]);
+            });
+        }
+        else
+        {
+            $("#partner_options_" + name).attr("value", inherited_options[name]);
+        }
+    }
+
+	function displayNotificationField(notification_status, isNew)
+	{	
+		// Do not add attr isNewlyCreated to existing fields
+		if (isNew && !$('#notifications_field_' + notification_status).is(":visible"))
+		{
+			$('#notifications_field_' + notification_status).attr('isNewlyCreated', 'true');
+		}
+		$('#notifications_field_' + notification_status).show();
+		$('#partner_notices_status_' + notification_status).focus();
+	}
+	function hideNotificationField(notification_status, markForDelete)
+	{	
+		$('#notifications_field_' + notification_status).hide();
+		$('#partner_notices_status_' + notification_status).val('');
+		/*
+		if(markForDelete)
+		{
+			$('#partner_notices_status_' + notification_status).attr('marked_for_delete', 'true');
+		}	
+		*/
+	}
+</script>
+

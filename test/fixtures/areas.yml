@@ -1,0 +1,19 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  video: 
+  title: MyString
+  href: MyString
+  shape: MyString
+  coords: MyString
+  begin: 9.99
+  end: 9.99
+
+two:
+  video: 
+  title: MyString
+  href: MyString
+  shape: MyString
+  coords: MyString
+  begin: 9.99
+  end: 9.99

@@ -1,0 +1,35 @@
+# Using a city name theme for test partners
+
+mobdub:
+  id: <%= SETTINGS['mobdub_partner_id'] %>
+  name: Mobdub
+  url: http://www.mobdub.com
+  script: mobdub.js.erb
+  pattern: /(paul_potts.flv)
+  link_url: /videos?video_uri={VIDEO_URI}
+  embed_src: {VIDEO_URI}
+  options:
+    twitter_enabled: false
+    comments_editor_default: 'comments editor global default'
+    comments_viewer_default: 'comments viewer global default'
+boston:
+  id: 2
+  name: Boston TV
+  url: MyString
+  script: MyString
+  pattern: MyString
+  link_url: MyString
+  embed_src: MyString
+  options:
+     twitter_enabled: true
+     twitter_search: 'boston twitter search default'    
+     comments_editor_default: 'boston comments editor default'
+     comments_read_rate: 5
+chicago:
+  id: 3
+  name: Chicago TV
+  url: MyString
+  script: MyString
+  pattern: MyString
+  link_url: MyString
+  embed_src: MyString

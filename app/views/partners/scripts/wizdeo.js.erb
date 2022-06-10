@@ -1,0 +1,121 @@
+<%= render :partial => 'partners/scripts/shared' %>
+
+function mdSetDubPlayer()
+{
+    var wzPlayerDiv = document.getElementById(wzPlayerDivName);
+    var wzPlayerWidth = 640;
+    var wzPlayerHeight = 380;
+
+    wzPlayerDiv.style.position = "relative";
+    wzPlayerDiv.style.width = wzPlayerWidth + "px";
+    wzPlayerDiv.style.height = wzPlayerHeight + "px";
+    wzPlayerDiv.innerHTML = "";
+
+    var videoURI = encodeURIComponent("<%= @video.uri %>");
+
+    // setup youtube player
+    var ytParams = {
+        allowScriptAccess: "always",
+        allowfullscreen: "true",
+        wmode: "transparent",
+        flashvars: "file=" + videoURI + "&autostart=true&displayclick=none&bufferlength=1.0&volume=50"
+    };
+
+    var wzPlayerUrl = "<%= base_url %>/swfs/JWPlayer.swf"; //<%= partner_video_embed_src(@partner, @video) %>;
+    mdAppendFlashChild(wzPlayerDiv, "wzPlayer", wzPlayerUrl, wzPlayerWidth, wzPlayerHeight, false, ytParams);
+
+    // setup mobdub player
+    var mdParams = {
+        base: "<%= base_url %>/swfs/",
+        flashvars: "smilUrl=<%= video_url(@video) %>&aspectRatio=4:3",
+        allowScriptAccess: "always",
+        wmode: "transparent"
+    };
+
+    var mdPlayerUrl = "<%= base_url %>/swfs/MobdubPlayer.swf";
+    var mdPlayerHeight = ( wzPlayerWidth * 3 ) / 4; // maintain 4:3 aspect ratio
+    mdAppendFlashChild(wzPlayerDiv, "mdPlayer", mdPlayerUrl, wzPlayerWidth, mdPlayerHeight, false, mdParams);
+}
+
+function mdAppendFlashChild(parentDiv, childId, swfUrl, width, height, flashVars, params)
+{
+    // create placeholder div
+    var placeDiv = document.createElement("div");
+    placeDiv.id = childId + "PlaceDiv";
+
+    // position at top-left corner
+    placeDiv.style.position = "absolute";
+    placeDiv.style.top = "0px";
+    placeDiv.style.left = "0px";
+
+    // create flash player div
+    var flashDiv = document.createElement("div");
+    flashDiv.id = childId + "FlashDiv";
+
+    // setup div structure
+    placeDiv.appendChild(flashDiv);
+    parentDiv.appendChild(placeDiv);
+
+    var attributes = { id: childId };
+    var expressUrl = "<%= base_url %>/swfs/expressInstall.swf";
+    mdswfobject.embedSWF(swfUrl, flashDiv.id, width, height, "9.0.0", expressUrl, flashVars, params, attributes);
+}
+
+function playerReady(obj)
+{
+    wzPlayer = document.getElementById("wzPlayer");
+    mdPlayer = document.getElementById("mdPlayer");
+    wzPlayer.addModelListener("TIME", "updatewzPlayerInfo");
+}
+
+var counter = 0;
+function updatewzPlayerInfo(timeEvent)
+{
+    if (counter > 2)
+    {
+        try
+        {
+            var clockSecs = timeEvent["position"];
+            mdPlayer.mdPlayheadUpdateHandler(clockSecs);
+            counter = 0;
+        }
+        catch (e) {
+        }
+    }
+    else
+    {
+        counter++;
+    }
+}
+
+function mdPartnerPlayerPause()
+{
+    try
+    {
+        if (wzPlayer)
+        {
+            wzPlayer.sendEvent("PLAY", "false");
+        }
+    }
+    catch(e) {
+    }
+}
+
+function mdPartnerPlayerStop()
+{
+    try
+    {
+        if (wzPlayer)
+        {
+            wzPlayer.sendEvent("STOP");
+        }
+    }
+    catch(e) {
+    }
+}
+
+var wzPlayer
+var mdPlayer;
+var wzPlayerDivName = "<%= partner_player_div %>";
+
+mdSetDubPlayer();

@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+  <title>Connect</title>
+  <script type="text/javascript">
+      var mdDomain = document.domain;
+      document.domain = mdDomain.substring(mdDomain.lastIndexOf(".", mdDomain.lastIndexOf(".") - 1) + 1);
+  </script>
+</head>
+<body>
+<script type="text/javascript">
+    if (window.opener)
+    {
+        //alert("opener")
+        window.opener.parent.Mobdub.Auth.showLoginBox(false);
+        window.opener.parent.Mobdub.Auth.authenticate();
+        // Submit any comment typed in the input box
+        window.opener.parent.Mobdub.Comments.submitComment();
+    }
+    else
+    {
+        //alert("parent")
+        parent.Mobdub.Auth.showLoginBox(false);
+        parent.Mobdub.Auth.authenticate();
+        parent.Mobdub.Comments.submitComment();
+    }
+    self.close();
+</script>
+</body>
+</html>

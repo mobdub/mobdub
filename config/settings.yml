@@ -1,0 +1,15 @@
+# Mobdub application settings should be specified here
+
+defaults: &defaults
+  mobdub_partner_id: 1
+  cache_key_ttl: 0
+  cache_uri_ttl: 300
+  
+development:
+  <<: *defaults
+
+test:
+  <<: *defaults
+
+production:
+  <<: *defaults

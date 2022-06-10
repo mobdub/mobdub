@@ -1,0 +1,710 @@
+<%	
+if ENV['RAILS_ENV'] == 'production'
+	image_domain = 'http://images.mobdub.com'
+	scripts_domain = 'http://scripts.mobdub.com'
+	styles_domain = 'http://styles.mobdub.com'
+else
+	image_domain = '/images'
+	scripts_domain = '/javascripts'
+	styles_domain = '/stylesheets'
+end
+
+submit_dark_img_url = image_domain + '/signInDark.png'
+submit_light_img_url = image_domain + '/signInLight.png'
+
+if params[:mode] == 'guest'
+	submit_dark_img_url = image_domain + '/submitDarkBig.png'
+	submit_light_img_url = image_domain + '/submitLightBig.png'	
+end	
+%>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://www.facebook.com/2008/fbml">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+  <title>Sign In</title>
+  <link href="<%= styles_domain %>/mdlogin.css" media="screen" rel="stylesheet" type="text/css" />
+  <script src="<%= scripts_domain %>/login_all_min.js" type="text/javascript"></script>
+  
+  <script type='text/javascript'>
+	function md_insertCssRules(decls) 
+	{
+	    var style = document.createElement('style');
+	    document.getElementsByTagName('head')[0].appendChild(style);
+	    
+	    if (!window.createPopup) 
+	    { /* For Safari */
+	       style.appendChild(document.createTextNode(''));
+	    }
+	    var s = document.styleSheets[document.styleSheets.length - 1];
+	    
+	    for (var i=0, dl = decls.length; i < dl; i++) 
+	    {
+	        var j = 1, decl = decls[i], selector = decl[0], rulesStr = '';
+	        if (Object.prototype.toString.call(decl[1][0]) === '[object Array]') {
+	            decl = decl[1];
+	            j = 0;
+	        }
+	        for (var rl=decl.length; j < rl; j++) 
+	        {
+	            var rule = decl[j];
+	            rulesStr += rule[0] + ':' + rule[1] + (rule[2] ? ' !important' : '') + ';\n';
+	        }
+	
+	        if (s.insertRule) 
+	        {
+	            s.insertRule(selector + '{' + rulesStr + '}', s.cssRules.length);
+	        }
+	        else 
+	        { /* IE */
+	            s.addRule(selector, rulesStr, -1);
+	        }
+	    }
+	}
+  </script>
+
+  <script type="text/javascript">
+    var mdDomain = document.domain;
+    document.domain = mdDomain.substring(mdDomain.lastIndexOf(".", mdDomain.lastIndexOf(".") - 1) + 1);
+	var mode = '<%= params[:mode] %>';
+	var options = parent.Mobdub.Comments.options;
+	var environment = '<%= ENV['RAILS_ENV'] %>';
+
+	// Set custom link color
+	try
+    {
+       if(options['comments_custom_css_link_color'])
+        {
+            var link_color = options['comments_custom_css_link_color'];
+            // Insert CSS settings into stylesheet obj
+			md_insertCssRules([
+			  ['.md-text-link', 
+			    ['color', link_color, true]
+			  ]
+			]);	
+        }            	
+    } catch (e) {};
+
+    try
+    {
+        if (parent.md_config.custom_css_url)
+        {
+            mdLoadScript( parent.md_config.custom_css_url, 'custom', 'css' );
+        }
+    }
+    catch(e) {}
+	
+    function mdLoadScript( url, id, type )
+    {
+        if ( url )
+        {
+            var oldFile = document.getElementById( id );
+            if( oldFile != null )  	{ oldFile.parentNode.removeChild ( oldFile ); delete oldFile; }
+
+            var head = document.getElementsByTagName( 'head' )[0];
+
+            if( type == 'css' )
+            {
+                var mdTag = document.createElement( 'link' );
+                mdTag.type = 'text/css';
+                mdTag.id = id;
+                mdTag.rel = 'stylesheet';
+                mdTag.href = url;
+            }
+            else
+            {
+                var mdTag = document.createElement( 'script' );
+                mdTag.type = 'text/javascript';
+                mdTag.id = id;
+                mdTag.src = url;
+            }
+
+            head.appendChild( mdTag );
+        }
+    }
+  </script>
+  
+  <script type="text/javascript">
+      function disableEnterKey(e)
+      {
+          var keynum;
+
+          if (window.event) {
+              keynum = e.keyCode
+          }     //IE
+          else if (e.which) {
+              keynum = e.which
+          }		//FF/Chrome/Safari
+
+          if (keynum == 13) return false;
+          else return true;
+      }
+  </script>
+
+
+  <script type='text/javascript'>
+      var oidBoxIsVisible = false;
+      var oidBoxOpener;
+      function mdToggleOIDBox(oidBtn)
+      {
+          var oidProvider = oidBtn.id;
+
+          if (( oidProvider == oidBoxOpener ) && oidBoxIsVisible)
+          {
+              mdSetFrameHeight(390);
+              $("OIDBox").hide();
+              oidBoxIsVisible = false;
+          }
+          else
+          {
+              $("oidProvider").setValue(oidProvider);
+
+              switch (oidProvider)
+              {
+                  case "oid":
+                      $("OIDfields").show();
+                      $("OIDBox").show();
+                      mdSetFrameHeight(562);
+                      $("user_session_openid_identifier").setValue("");
+                      break;
+
+                  case "twitter":
+                      $("OIDfields").hide();
+                      $("OIDBox").hide();
+                      mdSetFrameHeight(390);
+                      $("user_session_openid_identifier").setValue("");
+                      break;
+
+                  case "facebook":
+                      $("OIDfields").hide();
+                      $("OIDBox").hide();
+                      mdSetFrameHeight(390);
+                      break;
+
+                  case "google":
+                      $("OIDfields").hide();
+                      $("OIDBox").show();
+                      mdSetFrameHeight(498);
+                      $("user_session_openid_identifier").setValue("https://www.google.com/accounts/o8/id");
+                      break;
+
+                  case "yahoo":
+                      $("OIDfields").hide();
+                      $("OIDBox").show();
+                      mdSetFrameHeight(498);
+                      $("user_session_openid_identifier").setValue("http://www.yahoo.com");
+                      break;
+
+                  default:
+                      mdSetFrameHeight(390);
+              }
+
+              oidBoxIsVisible = true;
+          }
+
+          oidBoxOpener = oidProvider;
+          return true;
+      }
+
+      function mdSetFrameHeight(height)
+      {
+          if (navigator.appName == "Microsoft Internet Explorer" && navigator.appVersion.substr(navigator.appVersion.indexOf("MSIE") + 5, 3) == "7.0")
+          {
+              height += 10;
+          }
+          parent.document.getElementById("mdLoginFrame").style.height = height + "px";
+          parent.document.getElementById("mdLoginIframeBorder").style.height = height + "px";
+          parent.document.getElementById("mdLoginBox").style.height = ( height + 2 ) + "px";
+      }
+  </script>
+</head>
+<body>
+  <!-- IE8 fix to put this code after the body tag -->
+  <div id="fb-root">
+  </div>
+
+<div id="content" style="position:relative; margin-left:30px; margin-top:14px;" class="md-background">
+<div style="position:absolute; top:-5px; left:282px">
+  <img id="closeWin" style="cursor:pointer" 
+  	onclick="parent.Mobdub.Auth.showLoginBox( false );" 
+  	onmouseout="this.src='<%= image_domain %>/xDark.png';" 
+  	onmouseover="this.src='<%= image_domain %>/xLight.png';" src="<%= image_domain %>/xDark.png"/>
+</div>
+
+<div id="signInTitle" class="sectionLabel md-popup-text-header" style="margin-bottom: 5px">Sign In</div>
+
+<div id="introText" style="font-weight:bold; font-size:1.0em; margin-bottom:14px;"><span id="signInText">Not a member?&nbsp;</span>
+  <a id="signUpLink" class='md-text-link' 
+  	href="<%= new_partner_user_path(params[:partner_id]) if params[:partner_id] %>">Sign Up</a>
+  	<% if (params[:partner_id] && @partner.guest_allowed) %> or <a id="postAsGuestLink" class='md-text-link' 
+  	href="<%= new_partner_user_session_path(params[:partner_id]) if params[:partner_id] %>?mode=guest">Post as Guest</a> <% else %> for an account. <% end %>
+</div>
+
+<div class="inputLabel">
+<% form_for @user_session, :url => partner_user_sessions_path(params[:partner_id]), :html => {:id => "new_user_session", :name => "new_user_session"} do |f| %>
+    <!-- <%= f.error_message_on :base %> -->
+    <div style="margin-bottom: 8px">
+      <div id="user_session_login_label"><%= f.label :login, "Username" %></div>
+      <div><%= f.text_field :login, :class => "inputField validate-required-username" %></div>
+      <div id="errUserName" class="errorText"></div>
+    </div>
+    <div id="passwordDiv" style="margin-bottom: 13px">
+      <div><%= f.label :password %></div>
+      <div><%= f.password_field :password, :class => "inputField validate-required-password" %></div>
+      <div id="errPassword" class="errorText"></div>
+    </div>
+    <div id="guestScreenNameDiv" style="margin-bottom: 13px; display:none">
+      <div><%= f.label :guest_screen_name, "Screen Name" %></div>
+      <div><input class="inputField validate-required-screenname" id="user_session_guest_screen_name" maxlength="16" name="user_session[guest_screen_name]" onkeypress="return mdValidateUsername( event )" size="16" type="text" /></div>
+      <div id="errGuestScreenName" class="errorText"></div>
+    </div>
+    <div style="font-size:0.7em; margin-bottom:13px; position:relative;">
+      <div id="rememberMe" style="position:relative; text-align:left; vertical-align:middle;">
+        <span id="rememberMeSpan" style="position:absolute; top:0"><%= f.check_box :remember_me, {}, "true", "false" %></span><span style="margin-left:16px;"><%= f.label :remember_me %></span>
+      </div>
+    </div>
+    <div style="margin-bottom:16px">
+      <input id="user_session_submit"
+             style="height:24px; outline-style:none; width:71px;"
+             class="submit_partner_form"
+             type="image"
+             onmouseout="this.src='<%= submit_dark_img_url %>';"
+             onmouseover="this.src='<%= submit_light_img_url %>';"
+             src="<%= submit_dark_img_url %>"
+             value="Submit"
+             onclick="mdSignIn(); return false;"
+             name="commit"/>
+    </div>
+    <script type="text/javascript">
+      function mdGetError()
+        {
+            var errorObj =
+            {
+                "userName": '<%= f.error_message_on :login, :prepend_text => "Username ", :append_text => ".",  :css_class => "errorText" %>',
+                "password": '<%= f.error_message_on :password, :prepend_text => "Password ", :append_text => ".", :css_class => "errorText" %>',
+                "oid": '<%= escape_javascript( f.error_message_on :openid_identifier, :append_text => ".", :css_class => "errorText" ) %>',
+                "twitter": '<%= f.error_message_on :twitter, :css_class => "errorText"  %>',
+                "facebook": '<%= error_message_on @user_session, :facebook, :css_class => "errorText"  %>'
+            };
+
+            return errorObj;
+        }
+    </script>
+<% end %>
+
+<% form_for @user_session, :url => partner_user_sessions_path(params[:partner_id]), :html => {:id => "new_user_session_oid", :name => "new_user_session_oid"} do |f| %>
+    <div id='forgotPwd' style="font-size:0.7em; margin-bottom: 10px; display:none;"><a id="forgotPwdLink" onclick='mdForgotPassword(); return false;' href="" class='md-text md-text-link'>Forgot your password?</a></div>
+    <div id="dividerLine" style="width:272px; height:2px; margin-bottom: 10px; border-top: dashed 1px #999999"></div>
+    <div style="font-size:0.7em; font-weight:bold; margin-bottom:11px">Or sign in using one of these services:</div>
+
+    <div style=" margin-left:-2px;">
+      <!-- facebook -->
+      <a id="facebook_login_button" href="#" style='margin-right:4px;outline-style:none !important;' onclick="mdToggleOIDBox( {id:'facebook'} ); return false;">
+        <img id="fb_login_image" src="<%= image_domain %>/fbAuth.png" alt="Connect"/></a>
+		<!-- script added right after dom element is created for avoiding the visible flash of the fb button on slower connections -->
+		<script type="text/javascript">
+			if (options['facebook_login_enabled'] == '0')
+			{
+				$('facebook_login_button').hide();
+			}
+		</script>
+      <!-- twitter -->
+      <input name="login_with_oauth" value="Sign In with Twitter" id="twitter" type='image' style='margin-right:4px; outline-style:none !important;' src="<%= image_domain %>/twAuth.png" onclick="mdToggleOIDBox( this ); mdSignInOID( this.id );"/>
+      <!-- google -->
+      <input id="google" type='image' style='margin-right:4px; outline-style:none !important;' src="<%= image_domain %>/gAuth.png" value="Sign In with Google" name="login_with_oauth" onclick="mdToggleOIDBox( this ); return false;"/>
+      <!-- yahoo -->
+      <input id="yahoo" type='image' style='margin-right:4px; outline-style:none !important;' src="<%= image_domain %>/yahooAuth.png" value="Sign In with Yahoo" name="login_with_oauth" onclick="mdToggleOIDBox( this ); return false;"/>
+      <!-- open id -->
+      <input id="oid" type='image' style='outline-style:none !important;' src="<%= image_domain %>/oidAuth.png" value="Sign In with OpenId" name="login_with_oauth" id="user_submit" onclick="mdToggleOIDBox( this );
+              return false;"/><input type="hidden" id="login_with_oauth" name="login_with_oauth" value=""/>
+    </div>
+
+    <div id="errServices" class="errorText" style="font-size:0.65em"></div>
+
+    <!-- open id fields -->
+    <div id="OIDBox" style="margin-top: 10px">
+      <div id="OIDfields">
+        <div><%= f.label :openid_identifier, "OpenID URL" %></div>
+        <div><%= f.text_field :openid_identifier, :class => "inputField validate-required-openidurl", :onkeypress => "return disableEnterKey( event )" %></div>
+        <input id="oidProvider" type="hidden" name="oidProvider" value=""/>
+
+        <div id="errOID" class="errorText"></div>
+      </div>
+      <div style="margin-top: 10px">
+        <div><%= f.label :screen_name %></div>
+        <div><%= f.text_field :screen_name, :class => "inputField validate-required-screenname", :maxlength => "16", :onkeypress => "return disableEnterKey( event )" %></div>
+        <div id="errScreenName" class="errorText"></div>
+      </div>
+      <!-- auth services submit button -->
+      <div style="margin-top:14px;">
+        <input id="user_session_submit"
+               style="outline-style:none;"
+               type="image"
+               style="height:24px"
+               onmouseout="this.src='<%= image_domain %>/signInDark.png';"
+               onmouseover="this.src='<%= image_domain %>/signInLight.png';"
+               src="<%= image_domain %>/signInDark.png"
+               name="commit"
+               value="Sign In with OpenID"
+               onclick="mdSignInOID( $(oidProvider).value ); return false;"/>
+      </div>
+    </div>
+<% end %>
+
+    <script type='text/javascript'>
+    	$("OIDBox").hide();
+    	
+    	var signUpUrl = '<%= new_partner_user_path(params[:partner_id]) if params[:partner_id] %>';
+    	if (typeof(options) != "undefined" && options.sso_enabled)
+    	{
+    		signUpUrl = "javascript: top.location.href='" + options.sso_sign_up_url + "&referrer=" + encodeURIComponent(top.location) + "'";	
+    	}
+    		
+        // Set partner SSO settings
+        // Set guest comment settings
+        if(mode == 'guest')
+        { 
+            // Set up text
+            $('signInTitle').innerHTML = 'Post As Guest';
+            $('introText').innerHTML   = 'Prefer to use an account?&nbsp;&nbsp;' +
+            							 '<a id="signInLink" class="md-text-link" href="<%= new_partner_user_session_path(params[:partner_id]) if params[:partner_id] %>">Sign In</a>' +
+            							 ' or <a id="signUpLink" class="md-text-link" href="' + signUpUrl +'">Sign Up</a>';
+            // Set up email field
+        	$("user_session_login_label").innerHTML = 'Email Address';
+            $("user_session_login").removeClassName("validate-required-username");
+            $("user_session_login").removeClassName("validate-username");
+            $("user_session_login").addClassName("validate-required-email");
+            $("user_session_login").addClassName("validate-email");
+            
+            // Hide show relavant fields
+            $('passwordDiv').remove();// = '';
+            $('guestScreenNameDiv').show();
+            $('rememberMe').remove();
+           	$('forgotPwd').remove();
+           	
+           	// Populate previously submitted for fields/v	
+           	if(options['guest_email'])
+           		$("user_session_login").setValue(options['guest_email']);
+           	if(options['guest_screen_name'])
+           		$("user_session_guest_screen_name").setValue(options['guest_screen_name']);         	
+        }
+		else if (typeof(options) != "undefined" && options.sso_enabled)
+        {		
+            $("user_session_login_label").innerHTML = options.sso_login_label;
+            $("user_session_login").removeClassName("validate-required-username");
+            $("user_session_login").removeClassName("validate-username");
+            $("user_session_login").addClassName("validate-required-email");
+            $("user_session_login").addClassName("validate-email");
+            //$("signUpLink").href = "javascript: top.Mobdub.Auth.signUp()";
+            $("signUpLink").href = signUpUrl;
+
+            if (options.sso_hide_remember_me)
+            {
+                $("rememberMe").remove();
+            }
+            if (options.sso_forgot_password_url)
+            {
+                $("forgotPwd").show();
+            }
+        }
+        
+        function mdSignIn()
+        {
+            if (mode == 'guest')
+            {
+                var valid = new Validation('new_user_session', { onFormValidate: function(passed, formId) {
+                    mdOnPartnerFormValidate(passed, formId)
+                } });
+                if (valid.validate())
+                    postCommentAsGuest();
+            }
+            else if (typeof(options) != "undefined" && options.sso_enabled)
+            {
+                var valid = new Validation('new_user_session', { onFormValidate: function(passed, formId) {
+                    mdOnPartnerFormValidate(passed, formId)
+                } });
+                if (valid.validate())
+                    parent.Mobdub.Auth.postPartnerLoginForm($("user_session_login").value, $("user_session_password").value);
+            }
+            else
+            {
+                var valid = new Validation('new_user_session', { onFormValidate: function(passed, formId) {
+                    mdOnFormValidate(passed, formId)
+                } });
+                if (valid.validate())
+                    $("new_user_session").submit();
+            }
+        }
+    	
+    	function postCommentAsGuest()
+    	{
+    		var guestPost = {
+    			'type': 'guest', 
+    			'screen_name': $("user_session_guest_screen_name").value, 
+    			'email': $("user_session_login").value
+    		};
+    		
+    		// Set state for this page load
+    		try
+    		{
+    			parent.Mobdub.Comments.options['guest_screen_name'] = guestPost.screen_name;
+    			parent.Mobdub.Comments.options['guest_email'] = guestPost.email;
+    		} 
+    		catch (e){}
+    		
+    		if (window.opener)
+		    {		        
+		        window.opener.parent.Mobdub.Comments.submitComment(guestPost);
+		        window.opener.parent.Mobdub.Auth.showLoginBox(false);
+		    }
+		    else
+		    {		        
+		        parent.Mobdub.Comments.submitComment(guestPost);
+		        parent.Mobdub.Auth.showLoginBox(false);
+		    }
+		    self.close();
+    	}
+    	
+        function mdSignInOID(oidProvider)
+        {
+            var valid = new Validation('new_user_session_oid', { onSubmit:false, stopOnFirst: true, useTitles: true });
+            if (valid.validate())
+            {
+                $("login_with_oauth").setValue("");
+
+                if (oidProvider == "twitter")
+                {
+                    //$("login_with_oauth").setValue("Sign In with Twitter");
+                    document.new_user_session_oid.login_with_oauth.value = "Sign In with Twitter"; //IE7
+                    window.open("", "oidWin", "width=800,height=712,left=150,top=100,scrollbar=no,resize=no");
+                }
+                else if (oidProvider == "oid")
+                {
+                    window.open("", "oidWin", "width=688,height=456,left=150,top=100,scrollbar=no,resize=no");
+                }
+                else if (oidProvider == "google")
+                {
+                    window.open("", "oidWin", "width=870,height=550,left=150,top=100,scrollbar=no,resize=yes");
+                }
+                else if (oidProvider == "yahoo")
+                {
+                    window.open("", "oidWin", "width=550,height=445,left=150,top=100,scrollbar=no,resize=no");
+                }
+                document.new_user_session_oid.target = "oidWin";
+                $("new_user_session_oid").submit();
+            }
+        }
+
+        function mdForgotPassword()
+        {
+            //http://wndemo2.worldnow.com/global/PM/forgotpassword.aspx?Email=
+            if (options.sso_enabled)
+            {
+                var screenCoords = {'left': window.screenX, 'top': window.screenY };
+                if (Prototype.Browser.IE)
+                    screenCoords = {'left': window.screenLeft-170, 'top': window.screenTop-700 };
+
+                var coords = parent.Mobdub.Util.getPopUpPosition();
+                var winProps = 'width=454,height=240,left=' + (screenCoords.left + coords.left - 46) + ',top=' + (screenCoords.top + coords.top) + ',scrollbar=no,resize=no';
+
+                window.open(options.sso_forgot_password_url, 'forgotPwd', winProps);
+            }
+        }
+
+        function mdDisplayError(eObj)
+        {
+            if (eObj)
+            {
+                if (eObj.userName != '')
+                {
+                    $("errUserName").update(eObj.userName);
+                    $("user_session_login").addClassName("validation-failed");
+                    //mdSetFrameHeight(410);
+                }
+                if (eObj.password != '')
+                {
+                    $("errPassword").update(eObj.password);
+                    $("user_session_password").addClassName("validation-failed");
+                    //mdSetFrameHeight(410);
+                }
+                if (eObj.oid != '')
+                {
+                    $("errOID").update(eObj.oid);
+                    $("errOID").show();
+                    $("user_session_openid_identifier").addClassName("validation-failed");
+                    $("user_session_password").removeClassName("validation-failed");
+                    $("user_session_login").removeClassName("validation-failed");
+                    //mdSetFrameHeight(590);
+
+                    try
+                    {
+                        $("advice-validate-required-username-user_session_login").setValue("");
+                        $("advice-validate-required-password-user_session_password").setValue("");
+                    }
+                    catch(e) {
+                    }
+                }
+                if (eObj.twitter != '') {
+                    $("errServices").update(eObj.twitter);
+                }
+                if (eObj.facebook != '') {
+                    $("errServices").update(eObj.facebook);
+                }
+            }
+        }
+
+        function mdDisplaySSOError(eObj)
+        {
+            if (eObj)
+            {
+                if (eObj.userName != '')
+                {
+                    $("errUserName").update(eObj.userName);
+                    $("user_session_login").addClassName("validation-failed");
+                    //mdSetFrameHeight(410);
+                }
+                if (eObj.password != '')
+                {
+                    $("errPassword").update(eObj.password);
+                    $("user_session_password").addClassName("validation-failed");
+                    //mdSetFrameHeight(410);
+                }
+            }
+        }
+
+        function mdOnFormValidate(passed, formId)
+        {
+            /*if (!passed && oidBoxIsVisible)
+            {
+                //mdSetFrameHeight(590);
+            }
+            else if (!passed)
+            {
+                //mdSetFrameHeight(410);
+            }*/
+
+            var serverErr = $$("div.errorText");
+            serverErr.each(Element.hide);
+        }
+        
+        function mdValidateUsername(e)
+		{
+		  var keynum;
+		  var keychar;
+		  var check;
+		
+		  if (window.event) {
+		      keynum = e.keyCode;
+		  }     //IE
+		  else if (e.which) {
+		      keynum = e.which;
+		  }		//FF/Chrome/Safari
+		
+		  //alert( keynum );
+		  //8 - backspace, 46 - del, 13 - return,
+		  if (!keynum || keynum == 8 || keynum == 13 || keynum == 39 || keynum == 46) {
+		      return true;
+		  }
+		
+		  keychar = String.fromCharCode(keynum);
+		  check = /^[\sa-zA-Z0-9_.-]+$/;
+		      return check.test(keychar);
+		}
+		  
+        function mdOnPartnerFormValidate (passed, formId)
+        {
+            // put custom partner form validation if needed
+        }
+
+        if (window.opener)
+        {
+            window.opener.mdDisplayError(mdGetError()); //send error obj to parent window to render
+            self.close();
+        }
+        else
+        {
+            mdDisplayError(mdGetError())
+        } 
+    </script>
+
+<script>
+    if (navigator.appName == "Microsoft Internet Explorer" && navigator.appVersion.substr(navigator.appVersion.indexOf("MSIE") + 5, 3) == "7.0")
+    {
+        try
+        {
+            mdSetFrameHeight(400);
+            document.getElementById("rememberMeSpan").style.top = "-3px";
+            document.getElementById("rememberMeSpan").style.left = "-3px";   
+        }
+        catch(e){}
+    } 
+    else
+    {
+    	mdSetFrameHeight(390);
+    }
+</script>
+</div>
+
+<%
+output = "<form id='connect_to_facebook_form' method='post' action='#{partner_user_sessions_path(params[:partner_id])}'>\n"
+output << "<input type='hidden' name='authenticity_token' value='#{form_authenticity_token}'/>\n"
+# TODO: omarkarim edit which should be submitted as a patch
+output << "<input type='hidden' name='login_with_facebook' value='enabled'/>\n"
+output << "</form>\n"
+output << "<script type='text/javascript' charset='utf-8'>\n"
+output << " function connect_to_facebook() {\n"
+output << "   document.getElementById('connect_to_facebook_form').submit();\n"
+output << " }\n"
+output << "</script>\n"
+%>
+<%=output %>
+
+<script type="text/javascript">
+window.fbAsyncInit = function() {
+    FB.init({
+        appId: '<%= @partner.facebook_key %>',
+        status: true,  // check login status
+        cookie: true,  // enable cookies to allow the server to access the session
+        oauth: true,   // enable OAuth2
+        xfbml: true,   // parse XFBML
+        channelUrl: '<%= base_url %>/channel.html'
+    });
+
+    var fb_button = document.getElementById('facebook_login_button');
+    fb_button.onclick = function() {
+        FB.login(function(response) {
+            if (response.authResponse) {
+                FB.api('/me',
+                function(response) {
+                    //console.log(response.name + ' logged in.');   // --> send to connect
+                    connect_to_facebook();
+                });
+            }
+            else
+            {
+                //user cancelled login or did not grant authorization
+                //console.log('failed login');
+                connect_to_facebook();
+                // We need to proxy this via our connect which handles the auth, username update, and closes the parent window.
+            }
+        },
+        {
+            scope: 'email'
+        });
+    }
+};
+
+(function(d){
+   var js, id = 'facebook-jssdk'; if (d.getElementById(id)) {return;}
+   js = d.createElement('script'); js.id = id; js.async = true;
+   js.src = "//connect.facebook.net/en_US/all.js";
+   d.getElementsByTagName('head')[0].appendChild(js);
+}(document));
+
+</script>
+</div>
+
+</body>
+</html>

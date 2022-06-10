@@ -1,0 +1,281 @@
+<%= render :partial => 'partners/scripts/shared' %>
+
+function mdSetDubPlayer()
+{
+    var ytPlayerWidth = 640;
+    var ytPlayerHeight = 385;
+
+    var ytOldPlayer = document.getElementById(ytPlayerName);
+    if (ytOldPlayer) // false on mobdub.com
+    {
+        ytPlayerWidth = ytOldPlayer.width;
+        ytPlayerHeight = ytOldPlayer.height;
+    }
+
+    var ytPlayerDiv = document.getElementById(ytPlayerDivName);
+    if (ytPlayerDiv)
+    {
+        ytPlayerDiv.style.position = "relative";
+        ytPlayerDiv.style.width = ytPlayerWidth + "px";
+        ytPlayerDiv.style.height = ytPlayerHeight + "px";
+        ytPlayerDiv.innerHTML = "";
+
+        // setup youtube player
+        var ytParams = {
+            allowScriptAccess: "always",
+            wmode: "transparent"
+        };
+
+        var ytApiPlayerUrl = "<%= partner_video_embed_src(@partner, @video) %>";
+
+        try
+        {
+            /*
+             // fmt=0  -> flv:  320x240 (flv1) / mp3 1.0 22KHz
+             // fmt=5  -> flv:  320x240 (flv1) / mp3 1.0 22KHz
+             // fmt=6  -> flv:  480x360 (flv1) / mp3 1.0 44KHz
+             // fmt=13 -> 3gp:  176x144 (mpg4) / ??? 2.0  8KHz
+             // fmt=17 -> 3gp:  176x144 (mpg4) / ??? 1.0 22KHz
+             // fmt=18 -> mp4:  480x360 (H264) / AAC 2.0 44KHz
+             // fmt=22 -> mp4: 1280x720 (H264) / AAC 2.0 44KHz
+             // fmt=34 -> flv:  320x180 (flv?) / ??? 2.0 44KHz
+             // fmt=35 -> flv:  640x380 (flv?) / ??? 2.0 44KHz
+             */
+
+            var hasHQ = /6\//.test(swfArgs.fmt_map); //alert("HQ: " + hasHQ);
+            var hasHQWS = /35\//.test(swfArgs.fmt_map); //alert("HQWS: " + hasHQWS);
+            var hasH264 = /18\//.test(swfArgs.fmt_map); //alert("H264: " + hasH264);
+            var hasHD = /22\//.test(swfArgs.fmt_map); //alert("HD: " + hasHD);
+
+            if (hasHD)
+            {
+                ytApiPlayerUrl = ytApiPlayerUrl + "&ap=%2526fmt=22";
+            }
+            else if (hasHQ)
+            {
+                ytApiPlayerUrl = ytApiPlayerUrl + "&ap=%2526fmt=18";
+            }
+            else if (hasHQWS)
+            {
+                ytApiPlayerUrl = ytApiPlayerUrl + "&ap=%2526fmt=35";
+            }
+        }
+        catch (e)
+        {
+            //alert( e.description );
+        }
+
+        mdAppendFlashChild(ytPlayerDiv, "movie_player", ytApiPlayerUrl, ytPlayerWidth, ytPlayerHeight, false, ytParams);
+
+        var ytApiPlayerDiv = document.getElementById("movie_playerPlaceDiv");
+        ytApiPlayerDiv.style.zIndex = 1;
+
+        // setup mobdub player
+        var mdParams = {
+            base: "<%= base_url %>/swfs/",
+            flashvars: "smilUrl=<%= video_url(@video) %>",
+            allowScriptAccess: "always",
+            wmode: "transparent"
+        };
+
+        var mdPlayerUrl = "<%= base_url %>/swfs/MobdubPlayer.swf";
+        var mdPlayerHeight = ( ytPlayerWidth * 9 ) / 16; // maintain 4:3 aspect ratio
+        mdAppendFlashChild(ytPlayerDiv, "mdPlayer", mdPlayerUrl, ytPlayerWidth, mdPlayerHeight, false, mdParams);
+
+        var mdPlayerDiv = document.getElementById("mdPlayerPlaceDiv");
+        mdPlayerDiv.style.zIndex = 50;
+
+        // set up mobdub controls - volume
+        var mdVolumeControlParams = {
+            base: "<%= base_url %>/swfs/",
+            allowScriptAccess: "always",
+            wmode: "transparent"
+        };
+
+        var mdVolumeControlUrl = "<%= base_url %>/swfs/MobdubVolumeControl.swf";
+        var mdVolumeControlWidth = 67;
+        var mdVolumeControlHeight = 95;
+
+        if (hasHD || hasHQ || hasHQWS)  // if the HQ/HD button was added
+        {
+            mdVolumeControlWidth = mdVolumeControlWidth + 31;
+        }
+
+        mdAppendFlashChild(ytPlayerDiv, "mdVolumeControlPlayer", mdVolumeControlUrl, mdVolumeControlWidth, mdVolumeControlHeight, false, mdVolumeControlParams);
+        // might need to modify mdAppendFlashChild to include a css style object
+        var mdVolumeControlDiv = document.getElementById("mdVolumeControlPlayerPlaceDiv");
+        mdVolumeControlDiv.style.zIndex = 10;
+        // mdVolumeControlDiv.style.visibility = "none";
+        var mdVolumeControlTop = ytPlayerHeight - 24 - 70; // yt bar and md swf height
+        var mdVolumeControlLeft = mdVolumeControlWidth + 1; // yt volume and menu icon width
+        mdVolumeControlDiv.style.top = mdVolumeControlTop + "px";
+        mdVolumeControlDiv.style.left = "29px";
+        mdVolumeControlDiv.onmouseover = mdShowVolumeSlider;
+        mdVolumeControlDiv.onmouseout = mdHideVolumeSlider;
+    }
+}
+
+function mdAppendFlashChild(parentDiv, childId, swfUrl, width, height, flashVars, params)
+{
+    // create placeholder div
+    var placeDiv = document.createElement("div");
+    placeDiv.id = childId + "PlaceDiv";
+
+    // position at top-left corner
+    placeDiv.style.position = "absolute";
+    placeDiv.style.top = "0px";
+    placeDiv.style.left = "0px";
+
+    // create flash player div
+    var flashDiv = document.createElement("div");
+    flashDiv.id = childId + "FlashDiv";
+
+    // setup div structure
+    placeDiv.appendChild(flashDiv);
+    parentDiv.appendChild(placeDiv);
+
+    var attributes = { id: childId };
+    var expressUrl = "<%= base_url %>/swfs/expressInstall.swf";
+    mdswfobject.embedSWF(swfUrl, flashDiv.id, width, height, "9.0.0", expressUrl, flashVars, params, attributes);
+
+    // Added to force sizing on www.youtube.com
+    placeDiv.style.width = width + "px";
+    placeDiv.style.height = height + "px";
+}
+
+function onYouTubePlayerReady(playerId)
+{
+    ytPlayer = document.getElementById("movie_player");
+    mdPlayer = document.getElementById("mdPlayer");
+    setInterval(updateytPlayerInfo, 250);
+    updateytPlayerInfo();
+    ytPlayer.setVolume(50);
+    ytPlayer.mute(50);
+
+    var userAgent = navigator.userAgent;
+    if (userAgent.indexOf("Mac") > 0 && userAgent.indexOf("Safari") > 0)
+    {
+        var safariTimer = setTimeout(mdPlayer.enableHandCursor(), 2000);
+    }
+
+    //ytapiplayer.addEventListener("onStateChange", "onytPlayerStateChange");
+    //ytapiplayer.addEventListener("onError", "onPlayerError");
+}
+
+function updateytPlayerInfo()
+{
+    try
+    {
+        mdPlayer.seekTo(ytPlayer.getCurrentTime());
+    }
+    catch(e) {
+    }
+}
+
+//TODO: Will need to deprecate this and use mdPartnerPlayerPosition()
+function getCurrentTime()
+{
+    try
+    {
+        if (ytPlayer)
+        {
+            return ytPlayer.getCurrentTime();
+        }
+    }
+    catch(e) {
+    }
+}
+function mdPartnerPlayerPosition()
+{
+    try
+    {
+        if (ytPlayer)
+        {
+            return ytPlayer.getCurrentTime();
+        }
+    }
+    catch(e) {
+    }
+}
+function onMobdubPlayerPause()
+{
+    try
+    {
+        if (ytPlayer)
+        {
+            ytPlayer.pauseVideo();
+        }
+    }
+    catch(e) {
+    }
+}
+
+function mdPartnerPlayerStop()
+{
+    try
+    {
+        if (ytPlayer)
+        {
+            ytPlayer.stopVideo();
+        }
+    }
+    catch(e) {
+    }
+}
+
+//volume override functions
+function mdToggleVolume()
+{
+    if (ytPlayer.isMuted())
+    {
+        ytPlayer.unMute();
+    }
+    else
+    {
+        ytPlayer.mute();
+    }
+}
+
+function mdShowVolumeSlider()
+{
+    //document.getElementById( "mdVolumeControlPlayerPlaceDiv" ).style.cursor = "pointer";
+    document.getElementById("mdVolumeControlPlayerPlaceDiv").style.visibility = "visible";
+    document.getElementById("mdVolumeControlPlayerPlaceDiv").style.zIndex = 100;
+}
+
+function mdHideVolumeSlider()
+{
+    document.getElementById("mdVolumeControlPlayerPlaceDiv").style.zIndex = 10;
+}
+
+function mdSetYTVolume(volumePctLevel)
+{
+    ytPlayer.setVolume(volumePctLevel);
+}
+
+//called when the plugin _shared file loads
+function mdPluginScriptLoaded(pluginObj)
+{
+    //override yt link url field unless embedding is disabled
+    try
+    {
+        var ytLinkVideoURLField = document.getElementById("embed_code");
+        var embedLinkvalue = ytLinkVideoURLField.value;
+        var isEmbedDisabled = embedLinkvalue.indexOf("disabled") != -1;
+
+        if (!isEmbedDisabled)
+        {
+            var ytLinkVideoURLField = document.getElementById("watch-url-field");
+            ytLinkVideoURLField.value = "http://www.mobdub.com/?video_id=" + pluginObj.videoId;
+        }
+    }
+    catch(e) {
+    }
+}
+
+var mdPlayer;
+var ytPlayer;
+var ytPlayerDivName = "<%= partner_player_div %>";
+var ytPlayerName = "<%= partner_movie_id %>";
+
+mdSetDubPlayer(); // Replace with YT API Player and overlay md player

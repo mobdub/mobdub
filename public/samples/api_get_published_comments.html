@@ -1,0 +1,46 @@
+<html>
+<body>
+
+<script type="text/javascript">
+  var storyId = '12757950';   // start with the WorldNow story id
+  
+  var mdCommentUrl = 'http://api.mobdub.com/partners/12/smilTexts/comments.json?callback=showCommentInfo&per_page=1&search[ref_uri]=s-' + storyId;
+
+  // replace 'http://wndemo.worldnow.com' with just '/' when placing the script on the platform hosted page
+  // rand=[generate random number]
+  var wnProxyUrl = 'http://wndemo.worldnow.com/global/interface/httprequest/hrproxy.asp?rand=21312&contentType=application%2Fjson&url='; 
+  var getCommentUrl = wnProxyUrl + encodeURIComponent(mdCommentUrl);
+
+  // load script
+  loadScript(getCommentUrl, 'commentInfoScript');
+	
+	// callback function
+  function showCommentInfo( commentJSON )
+  {
+      var latestComment = commentJSON.items[0];
+      alert(  "Comment count: " + commentJSON.count
+          + "\nLatest comment: " + latestComment.body
+          + "\nAuthor: " + latestComment.user_name
+          + "\nRating: " + latestComment.vote );
+  }
+
+  function loadScript( url, id )
+  {
+    if ( url )
+    {
+        var oldFile = document.getElementById( id );
+        if( oldFile != null )  	{ oldFile.parentNode.removeChild ( oldFile ); delete oldFile; }
+
+        var head = document.getElementsByTagName( 'head' )[0];
+        var mdTag = document.createElement( 'script' );
+        mdTag.type = 'text/javascript';
+        mdTag.id = 'md-js-' + id;
+        mdTag.src = url;
+
+        head.appendChild( mdTag );
+    }	
+  }  
+</script>
+
+</body>
+</html>

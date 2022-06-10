@@ -1,0 +1,737 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head> 
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" /> 
+    <title>Mobdub - Blogging in Motion</title> 
+    <style type="text/css"> 
+		body {
+			background-color: #CCCCCC;
+			text-align: center;
+			font-family: "Arial", "Verdana";
+			font-size: 11px;
+			color: #999999;
+			margin: 0px;
+		}
+		  
+		a { 
+			color: #FFFFFF;
+			font-weight: bold;
+			text-decoration: none; 
+		}
+		
+		#dubCounter {
+			color: #CCCCCC;
+			font-size: 2em;
+			font-weight: bold;
+			text-align: right;
+		}
+		#introTextLarge {
+			color: #57C6D0;
+			font-size: 2em;
+			font-weight: bold;
+			text-align: left;
+		}
+		#introTextNormal {
+			color: #CCCCCC;
+			font-size: 1.5em;
+			font-weight: bold;
+			text-align: left;
+			margin-top: 5px;
+		}
+		.libColumn {
+			position: absolute; 
+			top: 0px; 
+			width: 130px;
+		}
+		.libVideoBox {
+			margin-right: 0px;
+			margin-top: 0px;
+		}
+		.libVideo {
+			width: 130px; 
+			height: 100px;
+			border: thin solid white;
+		}
+		.libVideoThumb
+		{
+			margin: 5px;
+		} 
+		.libVideoTitleText {
+			margin-left: 6px; 
+			margin-bottom: 0px; 
+			width: 120px; 
+			height: 35px; 
+		}
+		.libBorderVertical {
+			height: 730px;
+			width: 1px;
+			background-image: url( '/images/dashedLine.gif' );
+		}
+    </style> 
+    <script type="text/javascript" src="/javascripts/swfobject.js"></script>
+    <script type="text/javascript"> 
+    	var isMacSafari;
+    	var currentVideoDiv;
+    	var currentShareUrl = "";
+    	
+    	function mdInit()
+    	{	
+    		//check for qs 
+    		var partnerId = mdGetQuerystringParam( "partnerId" );
+    		var videoId = mdGetQuerystringParam( "videoId" );
+ 
+    		if ( partnerId > 0 && videoId > 0 )
+    		{
+    			var videoDiv = document.getElementById( videoId );
+    			
+    			if ( videoDiv ) 
+    			{
+    				mdPlayClipElem( videoDiv );
+    			}	
+    			else
+    			{	
+    			 	//mdPlayClip( partnerId, videoId ); //NOTE: remove for now otherwise direct access to videos is possible?
+    			 	//default clip 
+    			 	mdPlayClipElem( document.getElementById( "60" ) );
+    			}
+    		}
+    		else
+    		{
+    			//default clip 
+    			mdPlayClipElem( document.getElementById( "60" ) );
+    		}
+    	}
+    	
+    	function mdPlayClipElem( videoDiv )
+    	{
+    		var videoId = videoDiv.id;
+    		var partnerId = videoDiv.getAttribute( "partnerId" );
+    		
+    		mdSetVideoInfo( videoDiv );
+    		if ( currentVideoDiv ) 
+    		{
+    			mdSetThumbHighlight( currentVideoDiv, false );
+    			mdPartnerPlayerStop();
+			}
+    		mdSetThumbHighlight( videoDiv, true );
+    		currentVideoDiv = videoDiv;
+    		
+    		mdPlayClip( partnerId, videoId );
+    	}
+    	
+    	function mdPlayClip( partnerId, videoId )
+    	{
+    		var scriptSrc = "/partners/" + partnerId + "/script.js?player_div=playerDiv&video_id=" + videoId;
+
+    		mdLoadScript( scriptSrc );
+    		
+    		try
+    		{
+    			pageTracker._trackPageview( "/partners/" + partnerId + "/videos/" + videoId );
+    		}
+    		catch( e ) {}
+    		
+    		//set Addthis url
+    		//currentShareUrl = "http://www.mobdub.com/index.html?partnerId=" + partnerId + "&videoId=" + videoId;
+    		currentShareUrl = "http://" + document.location.host + document.location.pathname + "?partnerId=" + partnerId + "&amp;videoId=" + videoId;
+    	}
+    	
+    	function mdSetVideoInfo( videoDiv )
+    	{
+    		try
+    		{
+    			document.getElementById( "videoSummary" ).innerHTML = videoDiv.getAttribute( "summary" );
+    			document.getElementById( "videoTitle" ).innerHTML = videoDiv.getAttribute( "title" );
+    		}
+    		catch( e ) {}
+    	}
+    	
+    	function mdSetThumbHighlight( videoDiv, blnOn )
+    	{	
+    		try
+    		{    			
+    			if ( blnOn ) 
+    			{
+    				videoDiv.style.backgroundColor = "#FF9933";
+    				videoDiv.setAttribute( "playing", "true" );
+				}
+    			else 
+    			{
+    				videoDiv.style.backgroundColor = "#FFFFFF";
+    				videoDiv.setAttribute( "playing", "false" );
+				}
+    		}
+    		catch( e ) {}
+    	}
+    	
+    	function mdOnVideoMouseOver( videoDiv )
+    	{
+    		if ( videoDiv.getAttribute( "playing" ) != "true" ) videoDiv.style.backgroundColor = "#FF9933";
+    	}
+    	
+    	function mdOnVideoMouseOut( videoDiv )
+    	{
+    		if ( videoDiv.getAttribute ("playing" )  != "true" ) videoDiv.style.backgroundColor = "#FFFFFF";
+    	}
+    	
+	    function mdLoadScript( src )
+		{
+			var oldScript = document.getElementById( "mobdubScript" );
+			if( oldScript != null )
+			{
+				oldScript.parentNode.removeChild ( oldScript );
+				delete oldScript;
+			}
+			var head = document.getElementsByTagName( "head" )[0];
+			var script = document.createElement( "script" );
+		
+			script.id = 'mobdubScript';
+			script.type = 'text/javascript';
+		
+			script.src = src;
+			head.appendChild( script );
+		}
+		
+		function mdGetQuerystringParam( paramName )
+		{
+			var queryString = new Array();
+			var urlSearch = location.search.substr( 1 );
+			var parms = urlSearch.split( "&" );
+			
+			for( var i = 0; i < parms.length; i++ ) 
+			{
+			    var parm = parms[ i ].split( "=" );
+			    queryString[ parm[0] ] = parm[1];
+			}
+			
+			return queryString[ paramName ];
+		}
+	</script> 
+  </head> 
+  <body> 
+	<div id="page" style="position: relative; width: 900px; background-color: #FFFFFF; margin-left: auto; margin-right: auto;"> 
+		<div id="top" style="position: relative;"> 
+			<div id="logo" style="text-align: left; width: 180px; margin-left: 0px; margin-right: 720px;"> 
+				<img src="/images/MDlogo.gif" width="180" height="80" alt="Mobdub - Beta"></img> 
+			</div> 
+			<div id="dubCounter" style="position: absolute; top: 39px; left: 610px; text-align: right;"></div> 
+		</div> 
+		<div id="menu" style="height: 33px; background-color: #FF9933"></div> 
+		
+		<!-- CONTENT SECTION --> 
+		<div id="content" style="width: 761px; margin-left: 70px; margin-right: 70px;"> 
+			<div style="height: 20px"></div> 
+			<div id="introText"> 
+				<div id="introTextLarge">Welcome to the presidential dub project. Help the mob find its ruler!</div> 
+				<div id="introTextNormal">We hope you will join the debate by clicking within any video below and adding a caption. <br /> Also feel free to delete existing captions you find disagreeable. This site is a community experiment so please <a href="http://groups.google.com/group/mobdub/" style="color: #FF9933;">visit our discussion forum</a> for feedback and support. </div> 
+			</div> 
+			<div style="height: 20px"></div> 
+			
+			<!-- PLAYER SECTION --> 
+			<div id="playerMainSection" style="position: relative; height: 425px; background-image: url('/images/mdPplayerBGDashed.png'); "> 
+				<div id="player" style="position: absolute; top: 20px; left: 20px; width: 480px;"> 
+					<div id="playerDiv"></div> 
+				
+					<!-- hardcoded to support IE for now--> 
+					<!-- <script src="/partners/2/script.js?player_div=playerDiv&amp;video_id=32" type="text/javascript"></script> -->
+
+				</div> 
+				<div id="playerInfoSection" style="position: absolute; top: 20px; left: 516px; width: 226px; text-align: left"> 
+					<div id="videoTitle" style="font-size: 1.8em"></div> 
+					<p></p>
+					<div id="videoSummary"></div> 
+					<p></p><br></br>
+					<div id="videoShare" style=""> 
+						
+						<!-- AddThis Button BEGIN -->
+						<script type="text/javascript"> 
+							addthis_pub  = 'md';
+							if ( currentShareUrl == "" ) currentShareUrl = document.location;
+						</script> 
+						<a href="http://www.addthis.com/bookmark.php" onmouseover="return addthis_open(this, '', currentShareUrl, '[TITLE]')" onmouseout="addthis_close()" onclick="return addthis_sendto()"><img src="http://s9.addthis.com/button1-addthis.gif" width="125" height="16" border="0" alt="" /></a><script type="text/javascript" src="http://s7.addthis.com/js/152/addthis_widget.js"></script> 
+						<!-- AddThis Button END -->
+
+	
+						<p></p> 
+					</div> 
+					<div id="optimizedFirefox" style="position: absolute; top: 355px; left: -4px; font-weight: bold; font-size: 13px;"> 
+						<img src="/images/firefoxLogoText.gif" width="170" height="28" /> 
+					</div> 
+				</div> 
+			</div> 
+			
+			<!-- VIDEO LIBRARY --> 
+			<div style="height: 25px"></div> 
+			<div id="videoLibrarySection" style="position: relative; height: 733px;"> 
+				<!-- START LIBRARY A --> 
+				<div id="libraryA" class="libColumn" style="left: -5px;"> 
+					<div id="libraryAHeader" style="margin-left: 0px; width: 130px;"><img src="/images/headerEconomy.gif" width="120" height="46" /></div> 
+					
+					<!-- VIDEO --> 
+					<div class="libVideoBox"> 
+						<div id="67" 
+							class="libVideo"
+							partnerId="1" 
+							title="Fastest Way to Rescue Americans" 
+							summary=""
+							duration="04:33"> 
+							<div class="libVideoThumb" 
+								onclick="mdPlayClipElem( this.parentNode );" 
+								onmouseover="mdOnVideoMouseOver( this.parentNode );" 
+								onmouseout="mdOnVideoMouseOut( this.parentNode );"> 
+								<a href="javascript:;"><img src="http://cache-media.flektor-debates.com/cache/video/3rd_townhall/thumbs/_3743000_4011000_3743000.jpg" width="120" height="90" border="0" /></a> 
+							</div> 
+						</div>  
+						<div class="libVideoTitleText">Fastest Way to Rescue Americans  04:33</div> 
+					</div>
+
+					
+					<!-- VIDEO --> 
+					<div class="libVideoBox"> 
+						<div id="68" 
+							class="libVideo"
+							partnerId="1" 
+							title="How Does the Bailout Help Citizens?" 
+							summary=""
+							duration="05:08"> 
+							<div class="libVideoThumb" 
+								onclick="mdPlayClipElem( this.parentNode );" 
+								onmouseover="mdOnVideoMouseOver( this.parentNode );" 
+								onmouseout="mdOnVideoMouseOut( this.parentNode );"> 
+								<a href="javascript:;"><img src="http://cache-media.flektor-debates.com/cache/video/3rd_townhall/thumbs/_406000_578000_406000.jpg" width="120" height="90" border="0" /></a> 
+							</div> 
+						</div>  
+						<div class="libVideoTitleText">How Does the Bailout Help Citizens?  05:08</div> 
+					</div>  
+				
+					<!-- VIDEO --> 
+					<div class="libVideoBox"> 
+						<div id="69" 
+							class="libVideo"
+							partnerId="1" 
+							title="Who Can We Trust with the Economy?" 
+							summary=""
+							duration="12:53"> 
+							<div class="libVideoThumb" 
+								onclick="mdPlayClipElem( this.parentNode );" 
+								onmouseover="mdOnVideoMouseOver( this.parentNode );" 
+								onmouseout="mdOnVideoMouseOut( this.parentNode );"> 
+								<a href="javascript:;"><img src="http://cache-media.flektor-debates.com/cache/video/3rd_townhall/thumbs/_2476000_2886000_2476000.jpg" width="120" height="90" border="0" /></a> 
+							</div> 
+						</div>  
+						<div class="libVideoTitleText">Who Can We Trust with the Economy?  05:21</div> 
+					</div> 
+					
+					<!-- VIDEO --> 
+					<div class="libVideoBox"> 
+						<div id="49" 
+							class="libVideo"
+							partnerId="1" 
+							title="Subprime Lending Meltdown" 
+							summary="Sen. Biden and Gov. Palin debate the root causes of the subprime lending meltdown and whether lenders are to blame."
+							duration="03:14"> 
+							<div class="libVideoThumb" 
+								onclick="mdPlayClipElem( this.parentNode );" 
+								onmouseover="mdOnVideoMouseOver( this.parentNode );" 
+								onmouseout="mdOnVideoMouseOut( this.parentNode );"> 
+								<a href="javascript:;"><img src="http://cache-media.flektor-debates.com/cache/video/2nd_vp/thumbs/_465000_656000_465000.jpg" width="120" height="90" border="0" /></a> 
+							</div> 
+						</div>  
+						<div class="libVideoTitleText">Subprime Lending Meltdown  03:14</div> 
+					</div> 
+					
+					<!-- VIDEO --> 
+					<div class="libVideoBox"> 
+						<div id="56" 
+							class="libVideo"
+							partnerId="1" 
+							title="Opinions on the Financial Rescue" 
+							summary="The VP candidates discuss the financial rescue plan, government oversight and the US economy."
+							duration="03:36"> 
+							<div class="libVideoThumb" 
+								onclick="mdPlayClipElem( this.parentNode );" 
+								onmouseover="mdOnVideoMouseOver( this.parentNode );" 
+								onmouseout="mdOnVideoMouseOut( this.parentNode );"> 
+								<a href="javascript:;"><img src="http://cache-media.flektor-debates.com/cache/video/2nd_vp/thumbs/_95000_311000_95000.jpg" width="120" height="90" border="0" /></a> 
+							</div> 
+						</div>  
+						<div class="libVideoTitleText">Opinions on the Financial Rescue  03:36</div> 
+					</div> 
+				</div> 
+				<!-- END LIBRARY A --> 
+				
+				<div class="libBorderVertical" style="position: absolute; top: 0px; left: 140px;"></div>
+
+				
+				<!-- START LIBRARY B --> 
+				<div id="libraryB" class="libColumn" style="left: 155px;"> 
+					<div id="libraryBHeader" style="margin-left: 0px; width: 130px;"><img src="/images/headerDomesticIssues.gif" width="120" height="46" /></div> 
+					
+					<!-- VIDEO --> 
+					<div class="libVideoBox"> 
+						<div id="70" 
+							class="libVideo"
+							partnerId="1" 
+							title="Prioritize Health, Energy and Entitlements" 
+							summary=""
+							duration="04:19"> 
+							<div class="libVideoThumb" 
+								onclick="mdPlayClipElem( this.parentNode );" 
+								onmouseover="mdOnVideoMouseOver( this.parentNode );" 
+								onmouseout="mdOnVideoMouseOut( this.parentNode );"> 
+								<a href="javascript:;"><img src="http://cache-media.flektor-debates.com/cache/video/3rd_townhall/thumbs/_1010000_1331000_1010000.jpg" width="120" height="90" border="0" /></a> 
+							</div> 
+						</div>  
+						<div class="libVideoTitleText">Prioritize Health, Energy and Entitlements  04:19</div> 
+					</div>  
+					
+					<!-- VIDEO --> 
+					<div class="libVideoBox"> 
+						<div id="71" 
+							class="libVideo"
+							partnerId="1" 
+							title="What Sacrifices Will You Ask of Citizens? " 
+							summary=""
+							duration="09:17"> 
+							<div class="libVideoThumb" 
+								onclick="mdPlayClipElem( this.parentNode );" 
+								onmouseover="mdOnVideoMouseOver( this.parentNode );" 
+								onmouseout="mdOnVideoMouseOut( this.parentNode );"> 
+								<a href="javascript:;"><img src="http://cache-media.flektor-debates.com/cache/video/3rd_townhall/thumbs/_886000_1010000_886000.jpg" width="120" height="90" border="0" /></a> 
+							</div> 
+						</div>  
+						<div class="libVideoTitleText">What Sacrifices Will You Ask of Citizens?  09:17</div> 
+					</div> 
+					
+					<!-- VIDEO --> 
+					<div class="libVideoBox"> 
+						<div id="72" 
+							class="libVideo"
+							partnerId="1" 
+							title="Environment and Climate Change" 
+							summary=""
+							duration="02:40"> 
+							<div class="libVideoThumb" 
+								onclick="mdPlayClipElem( this.parentNode );" 
+								onmouseover="mdOnVideoMouseOver( this.parentNode );" 
+								onmouseout="mdOnVideoMouseOut( this.parentNode );"> 
+								<a href="javascript:;"><img src="http://cache-media.flektor-debates.com/cache/video/3rd_townhall/thumbs/_1590000_2147000_1590000.jpg" width="120" height="90" border="0" /></a> 
+							</div> 
+						</div>  
+						<div class="libVideoTitleText">Environment and Climate Change  06:50</div> 
+					</div>  
+					
+					<!-- VIDEO --> 
+					<div class="libVideoBox"> 
+						<div id="73" 
+							class="libVideo"
+							partnerId="1" 
+							title="Health Care as a Commodity" 
+							summary=""
+							duration="05:44"> 
+							<div class="libVideoThumb" 
+								onclick="mdPlayClipElem( this.parentNode );" 
+								onmouseover="mdOnVideoMouseOver( this.parentNode );" 
+								onmouseout="mdOnVideoMouseOut( this.parentNode );"> 
+								<a href="javascript:;"><img src="http://cache-media.flektor-debates.com/cache/video/3rd_townhall/thumbs/_1331000_1590000_1331000.jpg" width="120" height="90" border="0" /></a> 
+							</div> 
+						</div>  
+						<div class="libVideoTitleText">Health Care as a Commodity  05:37</div> 
+					</div> 
+					
+					<!-- VIDEO --> 
+					<div class="libVideoBox"> 
+						<div id="58" 
+							class="libVideo"
+							partnerId="1" 
+							title="Benefits to Same Sex Couples" 
+							summary="The VP candidates present their opinions on the definition of marriage and the constitutional right of same sex couples to the same benefits as heterosexual couples."
+							duration="03:06"> 
+							<div class="libVideoThumb" 
+								onclick="mdPlayClipElem( this.parentNode );" 
+								onmouseover="mdOnVideoMouseOver( this.parentNode );" 
+								onmouseout="mdOnVideoMouseOut( this.parentNode );"> 
+								<a href="javascript:;"><img src="http://cache-media.flektor-debates.com/cache/video/2nd_vp/thumbs/_2085000_2271000_2085000.jpg" width="120" height="90" border="0" /></a> 
+							</div> 
+						</div>  
+						<div class="libVideoTitleText">Benefits to Same Sex Couples  03:06</div> 
+					</div> 
+				</div> 
+				<!-- END LIBRARY B--> 
+				
+				<div class="libBorderVertical" style="position: absolute; top: 0px; left: 300px;"></div>
+
+				
+				<!-- START LIBRARY C --> 
+				<div id="libraryC" class="libColumn" style="left: 315px;"> 
+					<div id="libraryCHeader" style="margin-left: 0px; width: 130px;"><img src="/images/headerForeignPolicy.gif" width="120" height="46" /></div> 
+					
+					<!-- VIDEO --> 
+					<div class="libVideoBox"> 
+						<div id="60" 
+							class="libVideo"
+							partnerId="1" 
+							title="The Lessons of Iraq" 
+							summary="Senators John McCain and Barack Obama present their contrasting positions on the Iraq war during the first presidential debate at the University of Mississippi."
+							duration="05:49"> 
+							<div class="libVideoThumb" 
+								onclick="mdPlayClipElem( this.parentNode );" 
+								onmouseover="mdOnVideoMouseOver( this.parentNode );" 
+								onmouseout="mdOnVideoMouseOut( this.parentNode );"> 
+								<a href="javascript:;"><img src="http://cache-media.flektor-debates.com/cache/video/1st_domestic/thumbs/2947565.jpg" width="120" height="90" border="0" /></a> 
+							</div> 
+						</div>  
+						<div class="libVideoTitleText">The Lessons of Iraq  11:18</div> 
+					</div> 
+					
+					<!-- VIDEO --> 
+					<div class="libVideoBox"> 
+						<div id="74" 
+							class="libVideo"
+							partnerId="1" 
+							title="Military Intervention and US Responsibility" 
+							summary=""
+							duration="04:28"> 
+							<div class="libVideoThumb" 
+								onclick="mdPlayClipElem( this.parentNode );" 
+								onmouseover="mdOnVideoMouseOver( this.parentNode );" 
+								onmouseout="mdOnVideoMouseOut( this.parentNode );"> 
+								<a href="javascript:;"><img src="http://cache-media.flektor-debates.com/cache/video/3rd_townhall/thumbs/_2147000_2476000_2147000.jpg" width="120" height="90" border="0" /></a> 
+							</div> 
+						</div>  
+						<div class="libVideoTitleText">Military Intervention and US Responsibility  04:28</div> 
+					</div> 
+					
+					<!-- VIDEO --> 
+					<div class="libVideoBox"> 
+						<div id="75" 
+							class="libVideo"
+							partnerId="1" 
+							title="Pakistan and the War on Terror" 
+							summary=""
+							duration="07:44"> 
+							<div class="libVideoThumb" 
+								onclick="mdPlayClipElem( this.parentNode );" 
+								onmouseover="mdOnVideoMouseOver( this.parentNode );" 
+								onmouseout="mdOnVideoMouseOut( this.parentNode );"> 
+								<a href="javascript:;"><img src="http://cache-media.flektor-debates.com/cache/video/3rd_townhall/thumbs/_5292000_5591452_5292000.jpg" width="120" height="90" border="0" /></a> 
+							</div> 
+						</div>  
+						<div class="libVideoTitleText">Pakistan and the War on Terror  07:44</div> 
+					</div> 
+					
+					<!-- VIDEO --> 
+					<div class="libVideoBox"> 
+						<div id="61" 
+							class="libVideo"
+							partnerId="1" 
+							title="Engagement with Enemies" 
+							summary="The VP candidates present their opposing views on diplomacy, meeting with adversaries and working with allies."
+							duration="02:46"> 
+							<div class="libVideoThumb" 
+								onclick="mdPlayClipElem( this.parentNode );" 
+								onmouseover="mdOnVideoMouseOver( this.parentNode );" 
+								onmouseout="mdOnVideoMouseOut( this.parentNode );"> 
+								<a href="javascript:;"><img src="http://cache-media.flektor-debates.com/cache/video/2nd_vp/thumbs/_2825000_2989000_2825000.jpg" width="120" height="90" border="0" /></a> 
+							</div> 
+						</div>  
+						<div class="libVideoTitleText">Engagement with Enemies  02:46</div> 
+					</div> 
+					
+					<!-- VIDEO --> 
+					<div class="libVideoBox"> 
+						<div id="62" 
+							class="libVideo"
+							partnerId="1" 
+							title="The Potential Threat Iran Poses" 
+							summary='The Presidential candidates discuss whether Iran is a threat to their neighbors and the United States, the use of sanctions and the merits of high level engagement with foreign "enemies".'
+							duration="13:02"> 
+							<div class="libVideoThumb" 
+								onclick="mdPlayClipElem( this.parentNode );" 
+								onmouseover="mdOnVideoMouseOver( this.parentNode );" 
+								onmouseout="mdOnVideoMouseOut( this.parentNode );"> 
+								<a href="javascript:;"><img src="http://cache-media.flektor-debates.com/cache/video/1st_domestic/thumbs/4419969.jpg" width="120" height="90" border="0" /></a> 
+							</div> 
+						</div>  
+						<div class="libVideoTitleText">The Potential Threat Iran Poses 13:02</div> 
+					</div> 
+					
+				</div> 
+				<!-- END LIBRARY C --> 
+				
+				<div class="libBorderVertical" style="position: absolute; top: 0px; left: 460px;"></div>
+
+				
+				<!-- START LIBRARY D --> 
+				<div id="libraryD" class="libColumn" style="left: 475px;"> 
+					<div id="libraryDHeader" style="margin-left: 0px; width: 130px;"><img src="/images/headerCampaignSpeeches.gif" width="120" height="46" /></div> 
+					<!-- VIDEO --> 
+					<div class="libVideoBox"> 
+						<div id="42" 
+							class="libVideo"
+							partnerId="2" 
+							title="Sen. Obama's Speech to the DNC" 
+							summary="Sen. Barack Obama (D-IL) accepts his party's nomination and speaks to the 2008 Democratic National Convention. "
+							duration="50:19"> 
+							<div class="libVideoThumb" 
+								onclick="mdPlayClipElem( this.parentNode );" 
+								onmouseover="mdOnVideoMouseOver( this.parentNode );" 
+								onmouseout="mdOnVideoMouseOut( this.parentNode );"> 
+								<a href="javascript:;"><img src="http://i2.ytimg.com/vi/ato7BtisXzE/default.jpg" width="120" height="90" border="0" /></a> 
+							</div> 
+						</div>  
+						<div class="libVideoTitleText">Sen. Obama's Speech to the DNC  50:19</div> 
+					</div> 
+					
+					<!-- VIDEO --> 
+					<div class="libVideoBox"> 
+						<div id="43" 
+							class="libVideo"
+							partnerId="2" 
+							title="Sen. McCain's speech to the RNC" 
+							summary="Arizona Senator and Presidential candidate John McCain speaks to the Republican National Convention. "
+							duration="55:58"> 
+							<div class="libVideoThumb" 
+								onclick="mdPlayClipElem( this.parentNode );" 
+								onmouseover="mdOnVideoMouseOver( this.parentNode );" 
+								onmouseout="mdOnVideoMouseOut( this.parentNode );"> 
+								<a href="javascript:;"><img src="http://i1.ytimg.com/vi/PK-HFCId8_M/default.jpg" width="120" height="90" border="0" /></a> 
+							</div> 
+						</div>  
+						<div class="libVideoTitleText">Sen. McCain's speech to the RNC  55:58</div> 
+					</div> 
+					
+					<!-- VIDEO --> 
+					<div class="libVideoBox"> 
+						<div id="44" 
+							class="libVideo"
+							partnerId="2" 
+							title="Gov. Palin's Speech at the RNC" 
+							summary="Vice Presidential Candidate Gov. Sarah Palin (R-AK) at the Republican National Convention. "
+							duration="2:13"> 
+							<div class="libVideoThumb" 
+								onclick="mdPlayClipElem( this.parentNode );" 
+								onmouseover="mdOnVideoMouseOver( this.parentNode );" 
+								onmouseout="mdOnVideoMouseOut( this.parentNode );"> 
+								<a href="javascript:;"><img src="http://i2.ytimg.com/vi/UCDxXJSucF4/default.jpg" width="120" height="90" border="0" /></a> 
+							</div> 
+						</div>  
+						<div class="libVideoTitleText">Gov. Palin's Speech at the RNC 45:45</div> 
+					</div> 
+				
+					<!-- VIDEO --> 
+					<div class="libVideoBox"> 
+						<div id="45" 
+							class="libVideo"
+							partnerId="2" 
+							title="Sen. Biden Addresses the DNC" 
+							summary="Sen. Joe Biden (D-DE) addresses the Democratic National Convention after formally accepting the Vice Presidential nomination."
+							duration="2:13"> 
+							<div class="libVideoThumb" 
+								onclick="mdPlayClipElem( this.parentNode );" 
+								onmouseover="mdOnVideoMouseOver( this.parentNode );" 
+								onmouseout="mdOnVideoMouseOut( this.parentNode );"> 
+								<a href="javascript:;"><img src="http://i3.ytimg.com/vi/vvY9HxFJymY/default.jpg" width="120" height="90" border="0" /></a> 
+							</div> 
+						</div>  
+						<div class="libVideoTitleText">Sen. Biden Addresses the DNC  32:11</div> 
+					</div> 
+					
+				</div> 
+				<!-- END LIBRARY D --> 
+				
+				<div class="libBorderVertical" style="position: absolute; top: 0px; left: 620px;"></div>
+
+				
+				<!-- START LIBRARY E --> 
+				<div id="libraryE" class="libColumn" style="left: 635px;"> 
+					<div id="libraryEHeader" style="margin-left: 0px; width: 130px;"><img src="/images/headerFullDebates.gif" width="120" height="46" /></div> 
+					<!-- VIDEO --> 
+					<div class="libVideoBox"> 
+						<div id="34" 
+							class="libVideo"
+							partnerId="2" 
+							title="First Presidential Debate" 
+							summary="The first debate between Senators John McCain and Barack Obama focused on foreign policy and the economy. The event was hosted by the University of Mississippi on Friday, Sep. 26 with Jim Lehrer of NewsHour moderating."
+							duration="01:36:43"> 
+							<div class="libVideoThumb" 
+								onclick="mdPlayClipElem( this.parentNode );" 
+								onmouseover="mdOnVideoMouseOver( this.parentNode );" 
+								onmouseout="mdOnVideoMouseOut( this.parentNode );"> 
+								<a href="javascript:;"><img src="http://i3.ytimg.com/vi/F-nNIEduEOw/default.jpg" width="120" height="90" border="0" /></a> 
+							</div> 
+						</div>  
+						<div class="libVideoTitleText">First Presidential Debate  01:36:43</div> 
+					</div> 
+					
+					<!-- VIDEO --> 
+					<div class="libVideoBox"> 
+						<div id="41" 
+							class="libVideo"
+							partnerId="2" 
+							title="Vice Presidential Debate" 
+							summary="Full 2008 Vice Presidential Debate between Gov. Sarah Palin and Sen. Joe Biden."
+							duration="01:32:30"> 
+							<div class="libVideoThumb" 
+								onclick="mdPlayClipElem( this.parentNode );" 
+								onmouseover="mdOnVideoMouseOver( this.parentNode );" 
+								onmouseout="mdOnVideoMouseOut( this.parentNode );"> 
+								<a href="javascript:;"><img src="http://i2.ytimg.com/vi/Iv-phmrr0sQ/default.jpg" width="120" height="90" border="0" /></a> 
+							</div> 
+						</div>  
+						<div class="libVideoTitleText">Vice Presidential Debate  01:32:30</div> 
+					</div> 
+					
+					<!-- VIDEO --> 
+					<div class="libVideoBox"> 
+						<div id="66" 
+							class="libVideo"
+							partnerId="2" 
+							title="Second Presidential Debate" 
+							summary="Tom Brokaw moderated the second debate between Senators McCain and Obama at Belmont University in Nashville Tenn."
+							duration="01:32:30"> 
+							<div class="libVideoThumb" 
+								onclick="mdPlayClipElem( this.parentNode );" 
+								onmouseover="mdOnVideoMouseOver( this.parentNode );" 
+								onmouseout="mdOnVideoMouseOut( this.parentNode );"> 
+								<a href="javascript:;"><img src="http://i3.ytimg.com/vi/BzpRmvsx70c/default.jpg" width="120" height="90" border="0" /></a> 
+							</div> 
+						</div>  
+						<div class="libVideoTitleText">Second Presidential Debate  01:39:26</div> 
+					</div> 
+				</div>
+
+				<!-- END LIBRARY E --> 
+			</div> 
+			<!-- END CONTENT SECTION --> 
+		</div> 
+		
+		<!-- FOOTER SECTION-->
+		<div id="footer" style="position: relative; height: 110px;"> 
+			<div id="footerImage" style="position: absolute; top: 0px; left: 425px;"> 
+				<img src="/images/footer999999.gif" width="475" height="110" alt="Mobdub - Beta" /> 
+			</div> 
+			<div id="footerBanner" style="position: absolute; top: 78px; left: 0px; width: 425px; height: 32px; background-color: #999999; text-align: left; color: #FFFFFF;"> 
+				<div id="footerText" style="margin-left: 20px; width: 500px; margin-top: 10px;"> 
+					&copy; 2008 Mobdub LLC &nbsp;|&nbsp; <a href="/privacyPolicy.html">Privacy Policy</a> &nbsp;|&nbsp; <a href="/termsOfUse.html">Terms of Use</a> &nbsp;|&nbsp; info (at) mobdub.com
+				</div> 
+			</div> 
+		</div> 
+    </div> 
+    
+    <script type="text/javascript"> 
+		var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+		document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+	</script> 
+	<script type="text/javascript"> 
+		var pageTracker = _gat._getTracker("UA-XXXXXXX-X");
+		pageTracker._trackPageview();
+	</script> 
+	<script type="text/javascript">
+		mdInit();
+	</script>				
+  </body> 
+
+</html>  
+

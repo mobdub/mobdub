@@ -1,0 +1,136 @@
+<% @page_title = "User List - Mobdub" %>
+<div id="itemMain">
+  <div id="menu">
+    <%= render :partial => '/shared/admin_nav', :locals => {:current_view => "users"} %>
+    <div id="itemNav" class="itemNav">
+      <div id="searchFilter">
+		<% @search.created_at_greater_than_or_equal_to = @search.created_at_greater_than_or_equal_to.to_date if @search.created_at_greater_than_or_equal_to %>
+        <% form_for @search,  :html => {:id => "search"}, :url => partner_users_path(@partner) do |f| %>
+        	<span title="Search Keywords 'email:', 'site user name:'">Search</span> 
+        	<% searched_query = "" %>
+        	<% if @search.email_begins_with %>
+        		<% searched_query = 'email: ' + @search.email_begins_with %>
+        	<% elsif @search.partner_uid_begins_with %>
+        		<% searched_query = 'site user name: ' + @search.partner_uid_begins_with %>
+        	<% else %>
+        		<% searched_query = @search.login_begins_with_or_name_begins_with %>
+        	<% end %>
+       		<%= f.text_field :login_begins_with_or_name_begins_with, :value => searched_query, :title => "Search Keywords 'email:', 'site user name:'" %>
+            Type <%= f.select :permissions_role_id, search_user_role_filter_list, :include_blank => "All Roles" %>
+            Date <%= f.select :created_at_greater_than_or_equal_to, user_search_date_filter_list %>
+            <%= f.hidden_field :all, :name => "all", :value => "false" %>
+            <span class="pagination searchBox"><%= link_to_function "Show", "$('form#search').submit()" %></span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <div id="itemList">
+    <div class="dashboardHeader">Users</div>
+    <table class="contentTable">
+      <tr valign="bottom">
+      	<th width="40%">Screen Name</th>
+        <th width="40%"><%= order @search, :by => :email, :as => "Email", :params => { :partner_id => @partner.id } %></th>
+        <th width="15%">Role</th>
+        <th class="dateHeader"><%= order @search, :by => :created_at, :as => " Created Date", :params => { :partner_id => @partner.id } %></th>
+		<!-- <th class="dateHeader"><%= order @search, :by => :last_login_at, :as => "Last Login Date", :params => { :partner_id => @partner.id } %></th> -->
+      </tr>
+
+	<% for user in @users %>
+	      <tr class="highlight <%= cycle('row1', 'row2') %>" onclick="showDetails(this, '<%= partner_user_path(@partner, user) if @partner %>?view=inline', 'User');"
+              <% if @users.first %> id="firstItem"
+              <% end %>>
+            <td><table class="innerTable"><tr><td><img id="<%= user.id %>_user_role_icon" align="center" height="16" width="16"
+					 style="padding-right:5px" 
+            		 alt="<%= Permission::ROLES.index(user.role_id(@partner).to_i).to_s %>" 
+            		 title="<%= Permission::ROLES.index(user.role_id(@partner).to_i).to_s.capitalize() %>" 
+            		 src="/images/role_<%= Permission::ROLES.index(user.role_id(@partner).to_i).to_s %>.png" /></td><td><% if(user.screen_name) %><%= h user.screen_name %><% else %>Guest<% end %>
+            </td></tr></table></td>
+	        <td><%= h user.email %></td>
+	        <td><div id="<%= user.id %>_user_role"><%= h Permission::ROLES.index(user.role_id(@partner).to_i).to_s.capitalize() %></div></td>
+	        <td class="date"><%= h user.created_at %></td>
+	        <!-- <td class="date"><%= h user.current_login_at %></td> -->
+	      </tr>
+	  <% end %>
+
+      <tr>
+        <td align="left" colspan="8"><%= will_paginate @users %></td>
+      </tr>
+    </table>
+  </div>
+  <%= render :partial => '/shared/footer' %>
+</div>
+
+<div id="itemDetails">
+  <div class='trailing' style="background-color:#ffffff">
+    <div id="itemDetailsNav" class="itemNav itemDetailsNav">User Details</div>
+    <iframe id="itemFrame" width="100%" height="940" marginwidth="0" marginheight="0" frameborder="0" scrolling="no"></iframe>
+  </div>
+</div>
+
+<script>
+
+    $(document).ready(function() {
+        <% if @users.count > 0 %>
+        showDetails($("#firstItem"), '<%= partner_user_path(@partner, @users.first) %>?view=inline', 'User');
+        <% else %>
+        $(".contentTable").html("<div style='margin-top: 10px'>No content matches your criteria.</div>");
+        <% end %>
+		
+		// Fix for Searchlogic with named scopes searches
+		var permissions_role_id = '<%= @search.permissions_role_id %>';
+		var all_users = '<%= params[:all] %>';
+		
+		if (permissions_role_id != '') 
+		{
+			$('#search_permissions_role_id').val(permissions_role_id).attr('selected', true);
+		} 
+		else
+		{
+			if (all_users == 'true')
+			{
+				// set this to All Users
+				$('#search_permissions_role_id option:eq(<%= search_user_role_filter_list.length %>)').attr('selected', true);
+			}
+		};
+		
+		
+		
+		// IE Hack to fix row titles misaligning
+		$("#itemList").css("visibility", "visible");
+		
+        // On form submit - scrub data
+        $('form#search').submit( function()
+        {
+			// Append all=true for global user search
+            if ($('#search_permissions_role_id option:selected').text() == 'All Users')  // If its an id
+            {
+                $('#search_all').val('true');
+            }
+            else
+            {
+            	// Need to remove this field as search with "all=" any value will result in true
+            	$('#search_all').remove();
+            }
+            
+            // Search by keywords. 'email' and 'member'.
+            var key_email = 'email:',
+            	key_site_user_name = 'site user name:';
+            	
+	        var search_query = jQuery.trim($('#search_login_begins_with_or_name_begins_with').attr('value'));
+	        var searchKey = search_query.toLowerCase();
+	        if (searchKey.indexOf(key_email) == 0)
+	        {
+	            search_query = search_query.substring(key_email.length);
+	            search_query = jQuery.trim(search_query);
+	            $('#search_login_begins_with_or_name_begins_with').replaceWith('<input id="search_email_begins_with" name="search[email_begins_with]" type="text" size="30" value="' + search_query + '" />');
+	        }
+	        if ((searchKey.indexOf(key_site_user_name) == 0))
+	        {
+	            search_query = search_query.substring(key_site_user_name.length);
+	            search_query = jQuery.trim(search_query);
+	            $('#search_login_begins_with_or_name_begins_with').replaceWith('<input id="search_partner_uid_begins_with" name="search[partner_uid_begins_with]" type="text" size="30" value="' + search_query + '" />');
+	        }
+        });
+    });
+
+</script>

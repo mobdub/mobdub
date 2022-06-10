@@ -1,0 +1,225 @@
+<% @page_title = "Show User - Mobdub" %>
+
+<% if params[:view] != "inline" %>
+    <div id="itemMain" style="width:700px">
+      <div id="menu">
+        <%= render :partial => '/shared/admin_nav', :locals => {:current_view => "users"} %>
+        <div id="itemNav" class="itemNav">
+      <div id="searchFilter">
+        
+      </div>
+    </div>
+      </div>
+
+      <div id="itemList">
+        <div id="itemTrail">
+              <div id="itemTitle"><%= @user.login %></div>
+        </div>
+        <table align="center" width="100%">
+          <tr align="center">
+            <td width="646" align="center" valign="top">
+              <div class="tablecontainer" style="margin-top:10px;">
+                what goes here?
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <%= render :partial => '/shared/footer' %>
+    </div>
+
+    <div id="itemDetails" style="margin-left:720px;">
+      
+      <div id="itemDetailsNav" class="itemNav itemDetailsNav">User Details</div>
+<% end %>
+
+<div id="infoview">
+  <% if (@user.screen_name) %>
+  <div class="infotitle">Screen Name</div>
+    <div><%= h @user.screen_name %></div>
+  <div class="separator"></div>
+  <% end %>
+  
+  <% if (@user.email) %>
+  <div class="infotitle">Email</div>
+    <div><%= h @user.email %></div>
+  <div class="separator"></div>
+  <% end %>
+  
+  <% if (@user.partner_uid) %>
+  <div class="infotitle">Site User Name</div>
+    <div><%= h @user.partner_uid %></div>
+  <div class="separator"></div>
+  <% end %>
+
+  <% if (@user.has_twitter?) %>
+  <div class="infotitle">Twitter Account</div>
+    <div id="twitter_user"><img src="/images/mdLoader_blue.gif" /></div>
+  <div class="separator"></div>
+  <% end %>
+
+  <% if (@user.facebook_uid) %>
+  <div class="infotitle">Facebook Account</div>
+    <div id="facebook_username"><img src="/images/mdLoader_blue.gif" /></div>
+  <div class="separator"></div>
+  <% end %>
+  
+  <% if (@user.openid_identifier) %>
+  <div class="infotitle">Open ID</div>
+    <div><%= h @user.openid_identifier %></div>
+  <div class="separator"></div>
+  <% end %>
+  
+  <div class="infotitle">Role</div>
+  	<div id="rolechange_notification"></div>
+    	<% if current_user.permissions.roles(@partner).has_value?(@user.role_id(@partner)) %>
+    	<div style="height:28px; width:90px">
+	    	<table>
+	    		<tr>
+	    			<td>
+					<% form_for @user, :html => {:id => "user"}, :url => partner_users_path(@partner) do |f| %>
+				        <%= f.select :user_type_id, user_role_filter_list, { :selected => @user.role_id(@partner) }, :disabled => 'disabled' %>
+				    <% end %>
+				    </td>
+				    <td style="padding-left:8px">
+				    	<img id="role_edit_button" style="cursor:pointer" onclick="edit_role(true)" src="/images/edit.png" title="Edit Role" alt="Edit Role" />
+				    </td>
+				</tr>
+		    </table>
+	    </div>
+	    <% else %>
+	    	<div><%= h Permission::ROLES.index(@user.role_id(@partner).to_i).to_s.capitalize() %></div>
+	    <% end %>
+    
+  <div class="separator"></div>
+  
+  <% if (@user.created_at) %>
+  <div class="infotitle">Created Date</div>
+    <div class="date"><%= h @user.created_at %></div>
+  <div class="separator"></div>
+  <% end %>
+  
+  <!--
+  <% if (@user.login_count && @user.login_count > 0) %>
+  <div class="infotitle">Login Count</div>
+    <div><%= h @user.login_count %></div>
+  <div class="separator"></div>
+  <% end %>
+  
+  <% if (@user.last_login_at) %>
+  <div class="infotitle">Last Login Date</div>
+    <div class="date"><%= h @user.current_login_at %></div>
+  <div class="separator"></div>
+  <% end %>
+
+  <% if (@user.current_login_ip) %>
+  <div class="infotitle">Last Login IP</div>
+    <div><%= h @user.current_login_ip %></div>
+  <div class="separator"></div>
+  <% end %>
+  -->  
+    
+    <!--
+    <% if is_root %>
+	  <div class="pagination" style="text-align: center; margin-top:20px;">
+		<%= link_to 'Edit', edit_user_path(@user), {:target => "_parent"} %> 
+	  </div>
+	<% end %>
+	-->
+	
+  <% if params[:view] != "inline" %>
+      </div>
+      </div>
+  <% end %>
+
+<% if params[:view] == "inline" %>
+<script type="text/javascript">
+    // Resize this iframe based on content height
+    $(window).load(function() {
+        parent.resizeIframe($('#infoview').height());
+    });
+    
+    $(document).ready(function()
+    {
+    	// Load twitter user data
+    	<% if (@user.twitter_uid) %>
+    	
+		$.ajax({
+            dataType: 'jsonp',
+            jsonpCallback: 'setTwitterUserInfo',
+            url: 'http://api.twitter.com/1/users/lookup.json?user_id=<%= @user.twitter_uid %>',
+            success: function (data) {
+                //console.log("success: " + data);
+            },
+            error: function (xhr, status, error) {
+                //console.log("ERROR:\nstatus:" + status + "\nxhr: " + xhr + "\nerror: " + error);
+            }
+        });
+    	<% end %>
+    	
+    	<% if (@user.facebook_uid) %>
+    	
+    	$.ajax({
+            dataType: 'jsonp',
+            jsonpCallback: 'setFacebookUserInfo',
+            url: 'http://graph.facebook.com/<%= @user.facebook_uid %>',
+            success: function (data) {
+                //console.log("success: " + data);
+            },
+            error: function (xhr, status, error) {
+                //console.log("ERROR:\nstatus:" + status + "\nxhr: " + xhr + "\nerror: " + error);
+            }
+        });
+        
+    	<% end %>
+    });
+    
+    function edit_role(enable)
+    {
+    	if (enable)
+    	{
+    		$('#user_user_type_id').removeAttr('disabled');
+    		$('#role_edit_button').attr('onclick', 'save_role(true);edit_role(false)');
+    		$('#role_edit_button').attr('src', '/images/save.png');
+    		$('#role_edit_button').attr('title', 'Save Role');
+    		$('#role_edit_button').attr('alt', 'Save Role');
+    	}
+    	else
+    	{
+    		$('#user_user_type_id').attr('disabled', 'true'); 
+    		$('#role_edit_button').attr('onclick', 'edit_role(true)');
+    		$('#role_edit_button').attr('src', '/images/edit.png');
+    		$('#role_edit_button').attr('title', 'Edit Role');
+    		$('#role_edit_button').attr('alt', 'Edit Role');
+    	}
+    }
+    function save_role(save)
+    {
+    	if (save)
+    	{
+    		var role = $("#user_user_type_id option:selected").text().toLowerCase();
+    		
+    		$.ajax({
+    		  type: 'POST',
+			  url: '/partners/<%= @partner.id %>/users/<%= @user.id %>/permit',
+			  data: 'role=' + role,
+			  success: function()
+			  {
+			    $('#rolechange_notification').html('Role updated to ' + $("#user_user_type_id option:selected").text()).css('color', '#c0504d');
+			  },
+			  error: function (xhr, status, error) 
+			  {
+                $('#rolechange_notification').html('Failed to update role to ' + $("#user_user_type_id option:selected").text()).css('color', '#c0504d');
+              }
+			});
+    	}
+    	
+    	// Update listing page role
+    	if (parent)
+    	{
+    		parent.$('#<%= @user.id %>_user_role').text($("#user_user_type_id option:selected").text());
+    		parent.$('#<%= @user.id %>_user_role_icon').attr("src", "/images/role_" + role + ".png");
+    	}
+    }
+</script>
+<% end %>

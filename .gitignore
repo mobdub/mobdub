@@ -1,0 +1,9 @@
+.project
+.DS_Store
+log/*.log
+tmp/**/*
+config/development.sphinx.conf
+db/sphinx/*
+/flash
+/.idea
+

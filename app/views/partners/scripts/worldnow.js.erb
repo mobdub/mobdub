@@ -1,0 +1,326 @@
+<%= render :partial => 'partners/scripts/shared' %>
+
+<% if @video.media_type_id != 3 %>
+var wnPlayerWidth = 640;
+var wnPlayerHeight = 360;
+var wnPlayerDiv;
+
+function mdSetDubPlayer()
+{
+    var wnOldPlayer = document.getElementById(ptPlayerObjId);
+    if (wnOldPlayer)
+    {
+        wnPlayerWidth = wnOldPlayer.width;
+        wnPlayerHeight = wnOldPlayer.height;
+    }
+
+    var mdOldPlayerDiv = document.getElementById("mdPlayerPlaceDiv");
+    if (mdOldPlayerDiv) // remove existing md player
+    {
+        mdOldPlayerDiv.parentNode.removeChild(mdOldPlayerDiv);
+    }
+
+    wnPlayerDiv = document.getElementById(ptPlayerDivName);
+    if (wnPlayerDiv)
+    {
+        // setup mobdub player
+        var mdParams = {
+            base: _mdBaseUrl + "/swfs/",
+            flashvars: "postUrl=<%= video_url(@video) %>&smilUrl=<%= partner_video_url(@partner, @video) %>",
+            allowScriptAccess: "always",
+            wmode: "transparent"
+        };
+
+        var mdPlayerUrl = _mdBaseUrl + "/swfs/MobdubPlayer.swf";
+
+        if (mdPlayerWidthOvr != "") wnPlayerWidth = mdPlayerWidthOvr;
+        var mdPlayerHeight = ( wnPlayerWidth * 9 ) / 16; // maintain 16:9 aspect ratio
+        if (mdPlayerHeightOvr != "") mdPlayerHeight = mdPlayerHeightOvr;
+
+        var hideDiv = false;
+        // Check enable/disable settings and worldnow pre-rolls - added here to remove the temp flicker with the dub layer tools box
+        if ( ptEnableDubs == "0" || wnIsCanvasOverlayActive || _mdVideoOptions.dubs_enabled == "0" || _mdVideoOptions.dubs_display == "0" || mdIsPartnerVideoAd() ) hideDiv = true;
+        
+        mdAppendFlashChild(wnPlayerDiv, "mdPlayer", mdPlayerUrl, wnPlayerWidth, mdPlayerHeight, false, mdParams, hideDiv);
+
+        if (wnIsCanvasOverlayActive)
+           mdPartnerShowMobdubSwitch('disabled')
+        else
+           mdPartnerShowMobdubSwitch('enabled')
+    }
+}
+
+function mdPartnerShowMobdubSwitch(state)
+{
+    mdRemoveMobdubSwitch()
+    if ( ptEnableDubs == "1" && _mdVideoOptions.dubs_enabled == "1")
+    {
+        // Create Mobdub On/Off switch
+        if ( state == "disabled" )
+            var buttonHtml = '<img id="mdOnOffButton" class="mdSwitchDisabled" style="margin-left:5px" src="' + _mdBaseUrl + '/images/mobdub_disabled.png" />';
+        else if ( _mdVideoOptions.dubs_display == "1")
+            var buttonHtml = '<img id="mdOnOffButton" class="mdSwitchOn" onclick="mdOnOffClick(this)" onmouseover="this.style.cursor=\'pointer\'" style="margin-left:5px" src="' + _mdBaseUrl + '/images/mobdub_on.png" />';
+        else
+            var buttonHtml = '<img id="mdOnOffButton" class="mdSwitchOff" onclick="mdOnOffClick(this)" onmouseover="this.style.cursor=\'pointer\'" style="margin-left:5px" src="' + _mdBaseUrl + '/images/mobdub_off.png" />';
+
+        var switchHtml ='<div id="mobdub_switch">' +
+                        '<span id="mobdub_button"><img style="padding-bottom:1px" src="' + _mdBaseUrl + '/images/mobdub_pipe.png" />' + buttonHtml + '</span>' +
+                        '</div>';
+
+        var mdOnOffSwitch = document.createElement("div");
+        mdOnOffSwitch.id = "mdOnOffSwitch";
+        mdOnOffSwitch.style.zIndex = 100;
+        mdOnOffSwitch.style.position = "absolute";
+        mdOnOffSwitch.style.top = (wnPlayerHeight - 22) + "px"; //account for diff player heights
+        mdOnOffSwitch.style.left = "149px";
+        //mdOnOffSwitch.style.visibility = "hidden";
+        mdOnOffSwitch.innerHTML = switchHtml;
+        wnPlayerDiv.appendChild(mdOnOffSwitch);
+    }
+}
+
+function mdOnOffClick(img)
+{
+    if (img.className == 'mdSwitchOn')
+    {
+        mdPartnerShowDubs(false);
+        _mdVideoOptions.dubs_display = "0";
+    }
+    else if (img.className == 'mdSwitchOff')
+    {
+        mdPartnerShowDubs(true);
+        _mdVideoOptions.dubs_display = "1";
+    }
+
+}
+function mdPartnerShowDubs(show)
+{
+    try
+    {
+        var mdSwitch = document.getElementById('mdOnOffButton');
+        if (mdIsPartnerVideoAd())
+        {
+            mdShowDubs(false);
+            mdSwitch.src = _mdBaseUrl + '/images/mobdub_disabled.png';
+            mdSwitch.className = 'mdSwitchDisabled';
+        }
+        else if (show)
+        {
+            mdShowDubs(show);
+            mdSwitch.src = _mdBaseUrl + '/images/mobdub_on.png';
+            mdSwitch.className = 'mdSwitchOn';
+        }
+        else
+        {
+            mdShowDubs(false);
+            mdSwitch.src = _mdBaseUrl + '/images/mobdub_off.png';
+            mdSwitch.className = 'mdSwitchOff';
+        }
+    }
+    catch (e) {}
+}
+
+function mdRemoveMobdubSwitch()
+{
+    try
+    {
+        var oldSwitch = document.getElementById( "mdOnOffSwitch" );
+        if( oldSwitch != null )  { oldSwitch.parentNode.removeChild ( oldSwitch ); delete oldSwitch; }
+    }
+    catch (e) {}
+}
+function mdIsPartnerVideoAd()
+{
+    // wnClipObj is defined in WN code as a global
+    if (wnClipObj.isPreRoll || wnClipObj.isPostRoll || wnClipObj.isFlashVideoBookend) return true;
+    else return false;
+}
+
+function mdAppendFlashChild(parentDiv, childId, swfUrl, width, height, flashVars, params, hideDiv)
+{
+    // create placeholder div
+    var placeDiv = document.createElement("div");
+    placeDiv.id = childId + "PlaceDiv";
+
+    placeDiv.style.overflow = "hidden";
+    placeDiv.style.zIndex = 50;
+
+    // position at top-left corner
+    placeDiv.style.position = "absolute";
+
+    if (mdPlayerMarginTop != "") placeDiv.style.top = mdPlayerMarginTop + "px";
+    else placeDiv.style.top = "0px";
+
+    if (mdPlayerMarginLeft != "") placeDiv.style.left = mdPlayerMarginLeft + "px";
+    else placeDiv.style.left = "0px";
+
+    if (hideDiv)
+    {
+        placeDiv.style.width = "1px";
+        placeDiv.style.height = "400px";
+        //placeDiv.style.visibility = "hidden";
+    }
+    // create flash player div
+    var flashDiv = document.createElement("div");
+    flashDiv.id = childId + "FlashDiv";
+		
+    // setup div structure
+    placeDiv.appendChild(flashDiv);
+    parentDiv.appendChild(placeDiv);
+
+    var attributes = { id: childId };
+    var expressUrl = "<%= base_url %>/swfs/expressInstall.swf";
+    mdswfobject.embedSWF(swfUrl, flashDiv.id, width, height, "9.0.0", expressUrl, flashVars, params, attributes);
+}
+
+//onMediaStart should trigger the correct script to be loaded with the clip id
+function mdWNPlayerReady()
+{
+    //TODO: or use widget variable with [widgetname].getTimer();
+    wnPlayer = document.getElementById(ptPlayerObjId);
+    mdPlayer = document.getElementById("mdPlayer");
+    setInterval(updatewnPlayerInfo, 500);
+    updatewnPlayerInfo();
+
+    var userAgent = navigator.userAgent;
+    if (userAgent.indexOf("Mac") > 0 && userAgent.indexOf("Safari") > 0)
+    {
+        try
+        {
+            var safariTimer = setTimeout(mdPlayer.enableHandCursor(), 2000);
+        }
+        catch (e) {}      
+    }
+}
+
+function updatewnPlayerInfo()
+{
+    try
+    {
+        var timerObj = wnPlayer.ExternalGetTimerObject();
+        var timeSec = timerObj.videoCurrentTime; //seconds
+
+        if (mdPlayer)
+            mdPlayer.seekTo(timeSec);
+        else
+            document.getElementById("mdPlayer").seekTo(timeSec);       // In case the div is not ready yet
+    }
+    catch(e) {}
+}
+
+function mdPartnerPlayerPlay(pos)
+{
+    try
+    {
+        if (wnPlayer)
+        {
+            wnPlayer.playMedia();
+        }
+    }
+    catch(e) {
+    }
+}
+
+function mdPartnerPlayerSeek(pos)
+{
+    try
+    {
+        if (wnPlayer)
+        {
+            wnPlayer.playMedia();
+            wnPlayer.ExternalSetVideoTime(pos);
+        }
+    }
+    catch(e) {
+    }
+}
+
+function mdPartnerPlayerPosition()
+{
+    try
+    {
+        if (mdIsPartnerVideoAd())
+        {
+            return 0;
+        }
+        else
+        {
+            var timerObj = wnPlayer.ExternalGetTimerObject();
+            var timeSec = timerObj.videoCurrentTime; //seconds
+
+            return timeSec;
+        }
+
+    }
+    catch(e) {
+        return 0;
+    }
+}
+
+function onMobdubPlayerPause()
+{
+    try
+    {
+        if (wnPlayer)
+        {
+            wnPlayer.pauseMedia();
+        }
+    }
+    catch(e) { }
+}
+
+//called when the plugin _shared file loads
+function mdPluginScriptLoaded(pluginObj)
+{
+    //code to handle md video meta data goes here
+    try  { }
+    catch(e) { }
+}
+
+var mdPlayer;
+var wnPlayer;
+mdSetDubPlayer();
+mdWNPlayerReady();
+        
+<% else %>
+
+// Clean up required fields
+if (!_mdVideoOptions.comments_per_page)
+{
+    _mdVideoOptions.comments_per_page = 15;    
+}
+
+// Load article comments data
+try
+{
+	if(md_config.comments_enabled && md_config.comments_enabled != "")
+	{
+		_mdVideoOptions.comments_enabled = md_config.comments_enabled;	
+	}	
+} 
+catch(e) {}
+
+_mdVideoOptions.partner_get_comments_url = '<%= base_url %>/refs/' + _mdVideoOptions.video_id + '/smilTexts/comments.json?per_page=' + _mdVideoOptions.comments_per_page;
+if (_mdVideoOptions.comments_enabled != '0')
+{
+    mdLoadScript( _mdVideoOptions.partner_get_comments_url + '&callback=mdLoadTextComments&cache_key_partner=<%= @partner.id %>', 'md-plugin', 'javascript' );
+}
+
+// Load settings
+Mobdub.Comments.loadSettings(_mdVideoOptions);
+
+function mdLoadTextComments( comments_data )
+{
+    try
+    {
+        Mobdub.Comments.loadTextComments(comments_data);
+    }
+    catch (e)
+    {
+        //
+    }
+}
+<% end %>
+
+
+

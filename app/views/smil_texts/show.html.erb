@@ -1,0 +1,199 @@
+<% @page_title = "Show #{ SmilText::TEXT_STYLES.index(@smilText.text_style_id).to_s.humanize() } - Mobdub" %>
+
+<% if params[:view] != "inline" %>
+    <div id="itemMain" style="width:700px">
+      <div id="menu">
+        <%= render :partial => '/shared/admin_nav', :locals => {:current_view => "smil_texts"} %>
+        <div id="itemNav" class="itemNav">
+          <div id="searchFilter">
+            
+          </div>
+        </div>
+      </div>
+
+      <div id="itemList">
+        <div id="itemTrail">
+          <% if @video %>
+              <div id="itemTitle"><%=h @video.title %></div>
+              <%= link_to "Comments & Captions", video_smilTexts_path(@video) %> (<%= @video.smilTexts_count %>)
+              <% unless @video.areas_count <= 0 %>&nbsp;&nbsp;|&nbsp;&nbsp;<%= link_to 'Hotspots', video_areas_path(@video) %>
+                  (<%= @video.areas_count %>)
+              <% end %>
+          <% end %>
+        </div>
+        <table align="center" width="100%">
+          <tr align="center">
+            <td width="646" align="center" valign="top">
+              <div class="tablecontainer" style="margin-top:10px;">
+                <% if @video.media_type_id == Ref::MEDIA_TYPES[:video] %>
+                    <%= render :partial => '/shared/video_player' %>
+                <% else %>
+                    <%= render :partial => '/shared/article_comments_box' %>
+                <% end %>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <%= render :partial => '/shared/footer' %>
+    </div>
+
+    <div id="itemDetails" style="margin-left:720px;">
+        <div id="itemDetailsNav" class="itemNav itemDetailsNav">Comment Details</div>
+<% end %>
+
+<div id="infoview">
+  <div class="infotitle">Type</div>
+  <div><%= h SmilText::TEXT_STYLES.index(@smilText.text_style_id).to_s.humanize() %></div>
+  <div class="separator"></div>
+
+  <div class="infotitle">Date</div>
+    <div class="date"><%= @smilText.created_at %></div>
+  <div class="separator"></div>
+
+  <div class="infotitle">Status</div>
+  <div>
+
+    <div id="cmtStatus<%= @smilText.id %>">
+      <%= h SmilText::STATUSES.index(@smilText.status_id).to_s.humanize() %>
+      <% if @smilText.status_id == SmilText::STATUSES[:flagged] %> <%= pluralize(@smilText.flag_count, 'time') %>
+      <% elsif @smilText.flag_count > 0 %> with
+              <%= pluralize(@smilText.flag_count, 'flag') %>
+      <% end %>
+    </div>
+  </div>
+  <div class="separator"></div>
+
+  <div class="infotitle">Text</div>
+  <div><%=h @smilText.body %></div>
+  <div class="separator"></div>
+  
+  <div class="infotitle">Rating</div>
+  <div><%=h @smilText.vote %> after <%=h pluralize(@smilText.vote_count, 'vote') %></div>
+  <div class="separator"></div>
+
+  <% unless @smilText.body_history.blank? %>
+  <div class="infotitle">Original Text</div>
+  <div><%=h @smilText.body_history %></div>
+  <div class="separator"></div>
+  <% end %>
+
+  <div class="infotitle">Media Type</div>
+  <div><%= Ref::MEDIA_TYPES.index(@video.media_type_id).to_s.humanize() %></div>
+  <div class="separator"></div>
+
+  <div class="infotitle">Media Title</div>
+  <div><%= link_to @video.title, partner_video_path(@partner, @video), :target => '_top' %></div>
+  <div class="separator"></div>
+
+  <% if @video.media_type_id == Ref::MEDIA_TYPES[:video] %>
+  <div class="infotitle">Timestamp</div>
+  <div><%= @smilText.begin %></div>
+  <div class="separator"></div>
+  <% end %>
+
+  <% if @smilText.user_id %>
+  <div class="infotitle">Author</div>
+    <% if @smilText.user_name %>
+      <table><tr>
+	  	<td><%=h @smilText.user_name %>
+	      <% user = User.find(@smilText.user_id) %>
+	      <% if user.email %>
+	        &lt;<%=h user.email %>&gt;
+	      <% end %>
+	    </td>
+	    <% if (user.role_id(@partner) == 10) %>
+	    <td width="90" style="padding-left:10px; color:#c0504d;">Banned User</td>
+	    <% else %>
+	    <td width="80" style="padding-left:10px" id="rolechange_notification" class="pagination"><a href="javascript: banUser(<%= user.id %>);" style="color:#c0504d;">Ban User</a></td>
+	    <% end %>
+	  </tr></table>
+    <% end %>
+  <% end %>
+  
+<%
+	root_visibility_css = "hidden"
+	if is_root 
+		root_visibility_css = "visible"
+	end
+	
+	admin_visibility_css = "hidden"
+	if is_admin 
+		admin_visibility_css = "visible"
+	end	
+	
+	spam_visibility = ""
+	notspam_visibility = "none"
+	if SmilText::STATUSES.index(@smilText.status_id).to_s == "spammed"
+		spam_visibility = "none"
+		notspam_visibility = ""
+	end
+%>
+  	
+  <div class="pagination" style="text-align:center; margin-left:auto; margin-right:auto; margin-top:30px; position:relative; width:280px">
+	  	<span style="padding-bottom:3px;">
+	    	<%= link_to 'Edit', edit_video_smilText_path(@video, @smilText), :target => '_parent' if is_root %>
+		</span>	
+		
+	    <a class="moderate approve" style="color:#00b050; margin-left:10px; display:<%= spam_visibility %>" 
+	    	id="approve<%= @smilText.id %>" 
+	    	cmtId="<%= @smilText.id %>" 
+	    	posturl="<%= h moderate_video_smilText_path(@smilText.video_id, @smilText) %>?status=approved" 
+	    	action="Approved"><% if SmilText::STATUSES.index(@smilText.status_id).to_s != "approved" %>Approve<% end %>
+	    </a>
+	    <a class="moderate reject" style="color:#c0504d; margin-left:10px; display:<%= spam_visibility %>" 
+	    	id="reject<%= @smilText.id %>" 
+	    	cmtId="<%= @smilText.id %>" 
+	    	posturl="<%= h moderate_video_smilText_path(@smilText.video_id, @smilText) %>?status=rejected" 
+	    	action="Rejected"><% if SmilText::STATUSES.index(@smilText.status_id).to_s != "rejected" %>Reject<% end %>
+	    </a>
+	    
+	    <a class="moderate spam" style="color:#c0504d; margin-left:10px; display:<%= spam_visibility %>" 
+	    	title="Mark as spam" 
+	    	id="spam<%= @smilText.id %>" 
+	    	cmtId="<%= @smilText.id %>" 
+	    	posturl="<%= h spam_video_smilText_path(@smilText.video_id, @smilText) %>?mark=true" 
+	    	action="Spammed"><% if SmilText::STATUSES.index(@smilText.status_id).to_s != "spammed" %>Spam<% end %>
+	    </a>
+    	<a class="moderate notspam" style="color:#00b050; margin-left:10px; display:<%= notspam_visibility %>"
+    		title="Mark as not spam" 
+	    	id="notspam<%= @smilText.id %>" 
+	    	cmtId="<%= @smilText.id %>" 
+	    	posturl="<%= h spam_video_smilText_path(@smilText.video_id, @smilText) %>?mark=false" 
+	    	action="Created"><% if SmilText::STATUSES.index(@smilText.status_id).to_s == "spammed" %>Not Spam<% end %>
+	    </a>
+  </div>
+</div>
+
+<% if params[:view] != "inline" %>
+    </div>
+<% end %>
+
+<% if params[:view] == "inline" %>
+<script type="text/javascript">
+    // Resize this iframe based on content height
+    $(window).load(function() {
+        parent.resizeIframe($('#infoview').height());
+    });
+</script>
+<% end %>
+
+<script type="text/javascript">
+    function banUser(userId)
+	{
+		$.ajax({
+		  type: 'POST',
+		  url: '/partners/<%= @partner.id %>/users/' + userId + '/permit',
+		  data: 'role=troll',
+		  success: function()
+		  {
+		  	$('#rolechange_notification').removeClass('pagination')
+		    $('#rolechange_notification').html('Banned User').css('color', '#c0504d');
+		  },
+		  error: function (xhr, status, error) 
+		  {
+	        $('#rolechange_notification').html('Failed to ban user.').css('color', '#c0504d');
+	      }
+		});
+	}
+</script>

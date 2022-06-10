@@ -1,0 +1,176 @@
+<span class="sectionHeader" style="margin-left:12px; margin-top:10px">New partner</span>
+<style type=text/css>
+#dubCounter {
+	height:64px;
+}
+</style>
+<script type="text/javascript">
+	// Set defaults for parnter_type
+	function setPartnerDefaults(partner_type)
+	{
+		switch(partner_type)
+		{
+			case 'worldnow':
+				$('#partner_script').val('worldnow.js.erb');
+				$('#partner_link_url').val('/video?clipId={VIDEO_URI}');
+				
+				var embed_src = '<scr' + 'ipt src="{PARTNER_URL}/global/video/flash/WNVideo.asp"></scr' + 'ipt>' +
+								'<scr' + 'ipt>var c = new WNCommentsWidget("Mobdub", "MobdubVideoComments");' +
+								'c.SetCanvasDivName("playerDiv");c.SetPartnerId(partnerId);c.SetVideoId(videoId);c.SetWidth(646);c.SetHeight(400);' +
+								'c.SetCodebaseDomain(mdEnv);c.SetVideoAnnotationDimension(640, 360);c.SetVideoAnnotationMargins(0, 0);c.EnableVideoCommentsBox(true);' +
+								'var isWNClipId = true;var v = new WNVideoWidget("WNVideoCanvas", "playerDiv");v.SetStylePackage("flatlight");v.SetVariable("sidePadding", "0");' +
+								'v.SetVariable("topPadding", "0");v.SetWidth(640);v.SetHeight(400);' +
+								'if (videoURL == "")    v.SetVariable("clipId", uri);' +
+								'else { v.SetVariable("flvUri", videoURL) }' +
+ 								'v.RenderWidget();</scr' + 'ipt>';
+ 				$('#partner_embed_src').val(embed_src);
+ 				$('#partner_max_per_page').val('10');
+ 				$('#partner_options_comments_custom_css_text_color').val('#3C3940');
+ 				$('#partner_options_comments_custom_css_link_color').val('#114FB2');
+ 				$('#partner_max_flag_count').val('3');
+ 				$('#partner_options_twitter_enabled').val('0');
+ 				$('#partner_options_facebook_enabled').val('0');
+ 				$('#partner_pattern_header').html('Pattern (Not needed for WorldNow type partners)');
+			  	break;
+			  	
+			case 'other':
+				//
+			  	break;
+			default:
+			  	//
+		}   
+	}
+</script>
+
+<div id="edit" style="margin:10px">
+
+	<select id="partner_type" onchange="setPartnerDefaults(this.value)">
+		<option value="worldnow">WorldNow</option>	
+		<option value="other">Other</option>
+	</select>
+	
+	<%= error_messages_for :partner %>
+	
+	<% form_for(@partner) do |f| %>
+	    <div class="infotitle">Name</div> 
+	    <div><%= f.text_field :name %></div>
+	
+	    <div class="infotitle">Url</div>
+	    <div><%= f.text_field :url %></div>
+	
+		<div class="infotitle">Facebook API Key</div>
+        <div><%= f.text_field :facebook_key %></div>
+
+        <div class="infotitle">Facebook Application Secret</div>
+        <div><%= f.text_field :facebook_secret %></div>
+        
+	    <div class="infotitle">Plan</div> 
+		<div><%= f.select :plan_id, partner_plan_list %></div> 
+				
+	    <style type="text/css">
+	    	#partnerFeatures td {
+	    		padding-right:20px;
+	    		padding-bottom:10px;
+	    	}
+	    	#partnerFeatures input[type='text'] {
+			  	width: 100px;
+			}
+	    </style>
+	    <table id="partnerFeatures">
+	    	<tr>
+	    		<td>
+	    			<div class="infotitle">Text Color</div> 
+	    			<div><input id="partner_options_comments_custom_css_text_color" name="partner[options][comments_custom_css_text_color]" size="30" type="text" /></div> 
+	    		</td>
+	    		<td>
+	    			<div class="infotitle">Link Color</div> 
+	    			<div><input id="partner_options_comments_custom_css_link_color" name="partner[options][comments_custom_css_link_color]" size="30" type="text" /></div> 
+	    		</td>
+	    	</tr>
+	    	<tr>
+				<td>
+					<div class="infotitle">Enable Comments</div> 
+	    			<div><select id="partner_options_comments_enabled" name="partner[options][comments_enabled]"><option value="0">No</option> 
+					<option value="1" selected="selected">Yes</option></select></div> 
+				</td>
+				<td>
+					<div class="infotitle">Allow Guest Comments</div> 
+        			<div><select id="partner_guest_allowed" name="partner[guest_allowed]"><option value="true">Yes</option> 
+					<option value="false" selected="selected">No</option></select></div>
+				</td>
+	    	</tr>
+	    	<tr>
+	    		<td>
+	    			<div class="infotitle">Minimum Publishing Status</div>
+        			<div><%= f.select :min_publish_status, moderation_status_list %></div>
+				</td>
+				<td>
+					<div class="infotitle">Quarantine If Flagged</div>
+        			<div><%= f.select :max_flag_count, moderation_flag_count_list, {:include_blank => 'None'} %></div>
+				</td>
+	    	</tr>
+	    	<tr>
+	    		<td>
+	    			<div class="infotitle">Enable Twitter</div> 
+	    			<div><select id="partner_options_twitter_enabled" name="partner[options][twitter_enabled]"><option value="1">Yes</option> 
+					<option value="0">No</option></select></div>
+				</td>
+				<td>
+					<div class="infotitle">Enable Facebook</div> 
+	    			<div><select id="partner_options_facebook_enabled" name="partner[options][facebook_enabled]"><option value="1">Yes</option> 
+					<option value="0">No</option></select></div> 
+				</td>
+	    	</tr>
+	    	<tr>
+	    		<td>
+	    			<div class="infotitle">Enable Annotations</div> 
+	    			<div><select id="partner_options_dubs_enabled" name="partner[options][dubs_enabled]"><option value="1">Yes</option> 
+					<option value="0" selected="selected">No</option></select></div> 
+				</td>
+				<td>
+					<div class="infotitle">Show Annotations When Player Loads</div> 
+	    			<div><select id="partner_options_dubs_display" name="partner[options][dubs_display]"><option value="1">Yes</option> 
+					<option value="0" selected="selected">No</option></select></div> 
+				</td>
+	    	</tr>
+	    </table>
+	
+	    <div class="infotitle">Script</div>
+	    <div><%= f.text_field :script %></div>
+	
+	    <div id="partner_pattern_header" class="infotitle">Pattern</div>
+	    <div><%= f.text_field :pattern %></div>
+	
+	    <div class="infotitle">Link url</div>
+	    <div><%= f.text_field :link_url %></div>
+	    
+	    <div class="infotitle">Comments Per Page</div>
+	    <div><%= f.text_field :max_per_page %></div>
+	                    
+		<div class="infotitle">Enable SSO</div> 
+        <div>
+        	<select id="partner_sso_enabled" name="partner[sso_enabled]"><option value="true" selected="selected">Yes</option> 
+			<option value="false">No</option></select>
+		</div>
+		               
+		<input type="hidden" id="partner_sso_cookie" 		name="partner[sso_cookie]" value="sso_mobdub_userinfo" />
+		<input type="hidden" id="partner_sso_mapping" 		name="partner[sso_mapping]" value='{"partner_uid": "UserName", "email": "Email", "name": "FirstName"}' />
+		<input type="hidden" id="partner_sso_encrypt_key" 	name="partner[sso_encrypt_key]" value="XXXXXXXXXX" />
+		<input type="hidden" id="partner_sso_encrypt_iv" 	name="partner[sso_encrypt_iv]" value="XXXXXX" />
+		
+	    <div class="infotitle">Embed src</div>
+	    <div><%= f.text_area :embed_src %></div>
+		
+	    <div><%= f.submit "Create" %></div>
+	<% end %>
+	
+	<%= link_to 'Back to Partners', partners_path %>
+
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+        setPartnerDefaults('worldnow');
+   });
+</script>
+

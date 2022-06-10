@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+  <title>Sign In - Mobdub</title>
+  <%= stylesheet_link_tag 'mdadmin' %>
+  <%= stylesheet_link_tag 'themes/mobdub/jquery-ui-1.7.1.custom.css' %>
+  <%= javascript_include_tag "login_all_min" %>
+
+    <script type="text/javascript">
+      function mdValidateUsername(e)
+      {
+          var keynum
+          var keychar
+          var check
+
+          if (window.event) {
+              keynum = e.keyCode
+          }     //IE
+          else if (e.which) {
+              keynum = e.which
+          }		//FF/Chrome/Safari
+
+          //alert( keynum );
+          //8 - backspace, 46 - del, 13 - return,
+          if (!keynum || keynum == 8 || keynum == 13 || keynum == 39 || keynum == 46) {
+              return true
+          }
+
+          keychar = String.fromCharCode(keynum);
+          check = /^[a-zA-Z0-9_.-]+$/;
+          return check.test(keychar);
+      }
+
+  </script>
+</head>
+<body>
+
+<div id="page">
+  <div id="top" style="position: relative;">
+    <div id="logo">
+      <a href="/index.html"><img src="/images/mdLogoAdmin.jpg" alt="Mobdub - Beta"/></a>
+    </div>
+    <div id="dubCounter" style="height:64px"></div>
+    <div id="pagebar"></div>
+  </div>
+  <!-- MAIN CONTENT -->
+  <div id="maincontent" class="maincontent">
+    <div id="MobdubVideoComments">
+    <div id="loginBox">
+      <div class="ui-widget ui-widget-content ui-corner-all" style="-webkit-border-radius: 12px;-moz-border-radius:12px; border-width:4px; width:360px; margin:60px auto;">
+        <div id="notice" style="color:red; width:360px; margin-left:50px;margin-top:10px"><%= flash[:notice] %></div>
+        <div class="inputLabel" style="margin-left:50px;">
+          <% form_for @user, :url => users_path(:reaction => :admin, :reroute => admin_users_path), :html => { :id => "new_user", :name => "new_user" } do |f| %>
+        <div style="margin-bottom: 8px; margin-top: 25px">
+          <div style="margin-bottom: 3px;"><%= f.label :login, "Username" %></div>
+          <div><%= f.text_field :login, :maxlength => 16, :class => "inputField validate-username", :onkeypress => "return mdValidateUsername( event )" %></div>
+          <div id="errUserName" class="errorText"></div>
+        </div>
+
+        <div style="margin-bottom: 8px">
+          <div style="margin-bottom: 3px;"><%= f.label :email %></div>
+          <div><%= f.text_field :email, :class => "inputField validate-required-email validate-email" %></div>
+          <div id="errEmail" class="errorText"></div>
+        </div>
+
+        <div style="margin-bottom: 8px">
+          <div style="margin-bottom: 3px;"><%= f.label :password %></div>
+          <div><%= f.password_field :password, :class => "inputField validate-password" %></div>
+          <div id="errPassword" class="errorText"></div>
+        </div>
+
+        <div style="margin-bottom: 12px">
+          <div style="margin-bottom: 3px;"><%= f.label :password_confirmation, "Repeat Password" %></div>
+          <div><%= f.password_field :password_confirmation, :class => "inputField validate-passwordconfirmation" %></div>
+          <div id="errPasswordConfirmation" class="errorText"></div>
+        </div>
+
+        <div style="margin-bottom: 25px">
+          <input style="height:22px; width:73px; outline-style:none;"
+                 type="image"
+                 src="/images/signUpOrange.gif" id="user_submit"
+                 name="commit"
+                 value="Submit"
+                 onmouseout="this.src='/images/signUpOrange.gif';"
+                 onmouseover="this.src='/images/signUpGray.gif';">
+          </input>
+        </div>
+        </div>
+        </div>
+
+        <script>
+            function mdGetError()
+            {
+                var errorObj =
+                {
+                    "userName": '<%= escape_javascript( f.error_message_on :login, :prepend_text => "Username ", :append_text => ".",  :css_class => "errorText" ) %>',
+                    "email": '<%= escape_javascript( f.error_message_on :email, :prepend_text => "Email address ", :append_text => ".", :css_class => "errorText" ) %>',
+                    "password": '<%= escape_javascript( f.error_message_on :password, :prepend_text => "Password ", :append_text => ".", :css_class => "errorText" ) %>',
+                    "passwordConfirmation": '<%= escape_javascript( f.error_message_on :password_confirmation, :prepend_text => "Password confirmation ", :append_text => ".", :css_class => "errorText" ) %>'
+                };
+
+                return errorObj;
+            }
+
+            function mdDisplayError(eObj)
+            {
+                if (eObj)
+                {
+                    if (eObj.userName != '')
+                    {
+                        $("errUserName").update(eObj.userName);
+                        $("user_login").addClassName("validation-failed");
+                    }
+                    if (eObj.email != '')
+                    {
+                        $("errEmail").update(eObj.email);
+                        $("user_email").addClassName("validation-failed");
+                    }
+                    if (eObj.password != '')
+                    {
+                        $("errPassword").update(eObj.password);
+                    }
+                    if (eObj.passwordConfirmation != '')
+                    {
+                        $("errPasswordConfirmation").update(eObj.passwordConfirmation);
+                    }
+                }
+            }
+
+            function mdOnFormValidate(passed, formId)
+            {
+                formValidationPassed = passed;
+
+                var serverErr = $$("div.errorText");
+                serverErr.each(Element.hide);
+            }
+
+            mdDisplayError(mdGetError());
+            //var formValidationPassed = true;
+            new Validation('new_user', { onFormValidate: function(passed, formId) {
+                mdOnFormValidate(passed, formId);
+            } });  //prototype form validation plugin
+        </script>
+
+    <% end %>
+        </div>
+      </div>
+      </div>
+    </div>
+
+</body>
+</html>

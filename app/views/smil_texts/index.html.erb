@@ -1,0 +1,142 @@
+<% @page_title = "Moderate - Mobdub" %>
+<div id="itemMain">
+  <div id="menu">
+    <%= render :partial => '/shared/admin_nav', :locals => {:current_view => "smil_texts"} %>
+    <div id="itemNav" class="itemNav">
+      <div id="searchFilter">
+        <% @search.created_at_greater_than_or_equal_to = @search.created_at_greater_than_or_equal_to.to_date if @search.created_at_greater_than_or_equal_to %>
+        <% form_for @search, :html => {:id => "search"} do |f| %>
+            <% if @search.user_name_like %>
+        		Search <%= f.text_field :body_like, :value => 'author: ' + @search.user_name_like %>
+        	<% else %>
+        		Search <%= f.text_field :body_like %>
+        	<% end %>
+       
+            Status <%= f.select :status_id_equals, moderation_status_list, :include_blank => "All" %>&nbsp;&nbsp;
+            Type <%= f.select :text_style_id, search_text_type_filter_list, :include_blank => "All" %>
+            Date <%= f.select :created_at_greater_than_or_equal_to, search_date_filter_list %>
+            <span class="pagination searchBox"><%= link_to_function "Show", "$('form#search').submit()" %></span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <div id="itemList">
+    <div id="itemTrail">
+      <% if @video %>
+          <!--<%= link_to "All Media", partner_videos_path(@partner) %>&nbsp;&nbsp;>&nbsp;&nbsp;-->
+          <div id="itemTitle"><%= link_to @video.title, partner_video_path(@partner, @video) %></div>
+          Comments & Captions
+          (<%= @search.count %>)
+          <% unless @video.areas_count <= 0 %>&nbsp;&nbsp;|&nbsp;&nbsp;<%= link_to 'Hotspots', video_areas_path(@video, :search => { :order => :descend_by_created_at }) %>
+              (<%= @video.areas_count %>)
+          <% end %>
+      <% else %>
+          <div id="itemTitle">All Media</div>
+          Posts
+          (<%= @search.count %>)
+          <% unless @partner.areas.count <= 0 %>&nbsp;&nbsp;|&nbsp;&nbsp;<%= link_to 'Hotspots', partner_areas_path(@partner, :search => { :order => :descend_by_created_at }) %>
+              (<%= @partner.areas.count %>)
+          <% end %>
+      <% end %>
+    </div>
+    <!--<div class="dashboardHeader">Comments & Captions</div>-->
+    <table class="contentTable">
+      <tr valign="bottom">
+        <th width="22"><%= order @search, :by => :body, :as => "Text" %></th>
+        <th width="80%"></th>
+        <th class="dateHeader"><%= order @search, :by => :created_at, :as => "Date" %></th>
+        <th width="75"><%= order @search, :by => :status_id, :as => "Status" %></th>
+        <th width="120"></th>
+      </tr>
+
+      <% for smilText in @smilTexts %>
+      <%
+		spam_visibility = ""
+		notspam_visibility = "none"
+		if SmilText::STATUSES.index(smilText.status_id).to_s == "spammed"
+			spam_visibility = "none"
+			notspam_visibility = ""
+		end
+	   %>
+          <tr class="highlight <%= cycle('row1', 'row2') %>" onclick="showDetails(this, '<%= video_smilText_path(smilText.video_id, smilText) %>?view=inline', '<%= SmilText::TEXT_STYLES.index(smilText.text_style_id).to_s.humanize() %>');"
+              <% if @smilTexts.first %> id="firstItem"
+              <% end %>>
+            <td style="text-align:center;"><img alt="<%= SmilText::TEXT_STYLES.index(smilText.text_style_id).to_s.capitalize() %>" title="<%= SmilText::TEXT_STYLES.index(smilText.text_style_id).to_s.capitalize %>" src="/images/type_<%= SmilText::TEXT_STYLES.index(smilText.text_style_id).to_s %>.png" /></td>
+            <td valign="middle"><span class='itemLink'><%= link_to html_escape(smilText.body), video_smilText_path(smilText.video_id, smilText) %></td>
+            <td>
+              <div class="date"><%= smilText.created_at %></div>
+            </td>
+            <td>
+              <div id="cmtStatus<%= smilText.id %>"><%= h SmilText::STATUSES.index(smilText.status_id).to_s.capitalize() %></div>
+            </td>
+   
+            <td style="text-align:left;padding-left:0">
+              <div style="position:relative;">
+	              <span class="moderate approve" style="position:absolute; left:4px; top:-6px;display:<%= spam_visibility %>" 
+	              	id="approve<%= smilText.id %>" 
+	              	cmtId="<%= smilText.id %>" 
+	              	posturl="<%= h moderate_video_smilText_path(smilText.video_id, smilText) %>?status=approved" 
+	              	action="Approved"><% if SmilText::STATUSES.index(smilText.status_id).to_s != "approved" %>Approve<% end %>
+	              </span>
+	              <span class="moderate reject" style="position:absolute; left:75px; top:-6px;display:<%= spam_visibility %>"  
+	              	id="reject<%= smilText.id %>" 
+	              	cmtId="<%= smilText.id %>" 
+	              	posturl="<%= h moderate_video_smilText_path(smilText.video_id, smilText) %>?status=rejected" 
+	              	action="Rejected"><% if SmilText::STATUSES.index(smilText.status_id).to_s != "rejected" %>Reject<% end %>
+	              </span>	              
+	              <span class="moderate notspam" style="position:absolute; left:4px; top:-6px; display:<%= notspam_visibility %>" 
+	              	title="Mark as not spam" 
+	              	id="notspam<%= smilText.id %>" 
+	              	cmtId="<%= smilText.id %>" 
+	              	posturl="<%= h spam_video_smilText_path(smilText.video_id, smilText) %>?mark=false" 
+	              	action="Created"><% if SmilText::STATUSES.index(smilText.status_id).to_s == "spammed" %>Not Spam<% end %>
+	              </span>
+              </div>
+            </td>
+
+          </tr>
+      <% end %>
+      <tr>
+        <td align="left" colspan="6"><%= will_paginate @smilTexts %></td>
+      </tr>
+    </table>
+    <div class="actionLinks">
+      <%= link_to 'New Smil Text', new_video_smilText_path(@video) if @video && is_root %>
+    </div>
+  </div>
+  <%= render :partial => '/shared/footer' %>
+</div>
+
+<div id="itemDetails">
+	<div class='trailing'>
+  		<div id="itemDetailsNav" class="itemNav itemDetailsNav">Item Details</div>
+  		<iframe id="itemFrame" width="100%" height="700" marginwidth="0" marginheight="0" frameborder="0" scrolling="no"></iframe>
+  	</div>
+</div>
+
+
+<script>
+    <% if @search.count > 0 %>
+        $(document).ready(function() {
+            showDetails($("#firstItem"), '<%= video_smilText_path(@smilTexts.first.video_id, @smilTexts.first) %>?view=inline', '<%= SmilText::TEXT_STYLES.index(@smilTexts.first.text_style_id).to_s.humanize() %>');
+        	// IE Hack to fix row titles misaligning
+			$("#itemList").css("visibility", "visible");
+        });
+    <% else %>
+        $(".contentTable").html("<div style='margin-top: 10px'>No content matches your criteria.</div>");
+    <% end %>
+
+    // On form submit - scrub data
+    $('form#search').submit( function()
+    {
+        // 'author:' keyword
+        var search_query = jQuery.trim($('#search_body_like').attr('value'));
+        var authorKey = search_query.toLowerCase();
+        if (authorKey.indexOf('author:') == 0)
+        {
+            search_query = search_query.substring(7);
+            search_query = jQuery.trim(search_query);
+            $('#search_body_like').replaceWith('<input id="search_user_name_begins_with" name="search[user_name_begins_with]" type="text" size="30" value="' + search_query + '" />');
+        }
+    });
+</script>

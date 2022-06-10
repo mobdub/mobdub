@@ -1,0 +1,201 @@
+<% @page_title = "Show Media - Mobdub" %>
+<% options = @video.merged_options %>
+
+<% if params[:view] != "inline" %>
+    <div id="itemMain" style="width:730px">
+      <div id="menu">
+        <%= render :partial => '/shared/admin_nav', :locals => {:current_view => "videos"} %>
+        <div id="itemNav" class="itemNav">
+      <div id="searchFilter">
+        
+      </div>
+    </div>
+      </div>
+
+      <div id="itemList">
+        <div id="itemTrail">
+              <div id="itemTitle"><%= @video.title %></div>
+              <% unless @video.smilTexts_count <= 0 %><%= link_to "Comments & Captions", video_smilTexts_path(@video) %> (<%= @video.smilTexts_count %>) <% end %>
+              <% unless @video.areas_count <= 0 %>&nbsp;&nbsp;|&nbsp;&nbsp;<%= link_to 'Hotspots', video_areas_path(@video) %>
+                  (<%= @video.areas_count %>)
+              <% end %>
+        </div>
+        <table align="center" width="100%">
+          <tr align="center">
+            <td width="646" align="center" valign="top">
+              <div class="tablecontainer" style="margin-top:10px;">
+                <% if @video.media_type_id == Ref::MEDIA_TYPES[:video] %>
+                    <%= render :partial => '/shared/video_player' %>
+                <% elsif @video.media_type_id == Ref::MEDIA_TYPES[:article] %>
+                    <%= render :partial => '/shared/article_comments_box' %>
+                <% elsif @video.media_type_id == Ref::MEDIA_TYPES[:image] %>
+                       <%= render :partial => '/shared/image_comments_box' %>
+                <% end %>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <%= render :partial => '/shared/footer' %>
+    </div>
+
+    <div id="itemDetails" style="margin-left:747px;">
+      
+      <div id="itemDetailsNav" class="itemNav itemDetailsNav"><%= Ref::MEDIA_TYPES.index(@video.media_type_id).to_s.humanize() %> Details</div>
+<% end %>
+
+<div id="infoview">
+  <div class="infotitle">Type</div>
+    <div><%= Ref::MEDIA_TYPES.index(@video.media_type_id).to_s.capitalize() %></div>
+  <div class="separator"></div>
+
+  <div class="infotitle">Date</div>
+    <div class="date"><%= @video.created_at %></div>
+  <div class="separator"></div>
+
+  <div class="infotitle">Title</div>
+  <% if params[:view] != "inline" %>
+    <div><%=h @video.title %></div>
+  <% else %>
+    <div><%= link_to @video.title, partner_video_path(@partner, @video), :target => '_top' %></div>
+  <% end %>
+  <div class="separator"></div>
+
+  <% if @video.description && @video.description.strip != '' %>
+    <div class="infotitle">Description</div>
+    <div><%= @video.description %></div>
+    <div class="separator"></div>
+  <% end %>
+
+  <div class="infotitle">Content</div>
+  <div style="overflow:hidden">
+    <% if !@video.uri || @video.uri == '' %>
+         <a href='<%= @video.src %>' title='Right-click the link and choose "Save Link As..." to save the media to your computer' target='_blank'><%= File.basename(@video.src) %></a>
+    <% else %>
+         <%= @video.uri %>	
+    <% end %>
+    
+    <% if @video.thumb && @video.thumb.strip != '' %>
+    	<div style="margin-top:10px; margin-bottom:0"><img alt="Thumbnail" src="<%= @video.thumb %>" width="265" /></div>
+  	<% end %>
+  
+  </div>
+  <div class="separator"></div>
+
+  <div class="infotitle">Source</div>
+    <div><%= @partner.name %></div>
+  <div class="separator"></div>
+
+  <% if (allow_annotations || is_root)%>
+	<% if @video.media_type_id == Ref::MEDIA_TYPES[:video] %>
+	  <div class="infotitle">Enable Annotations</div>
+	  <div>
+	    <% if options['dubs_enabled'] == "1" %>
+	    Yes
+	    <% else %>
+	    No
+	    <% end %>
+	  </div>
+  
+	  <div class="infotitle">Show Annotations When Player Loads</div>
+	  <div>
+	    <% if options['dubs_display'] == "1" %>
+	    Yes
+	    <% else %>
+	    No
+	    <% end %>
+	  </div>
+	  <div class="separator"></div>
+  	<% end %>
+  <% end %>
+
+<% if (allow_comments || is_root)%>
+  <div class="infotitle">Enable Comments</div>
+  <div>
+    <% if options['comments_enabled'] == "1" %>
+    Yes
+    <% elsif options['comments_enabled'] == "2" %>
+    Read Only
+    <% else %>
+    No
+    <% end %>
+  </div>
+  <div class="separator"></div>
+<% end %> 
+
+<% if (allow_facebook || is_root)%>
+  <div class="infotitle">Enable Facebook</div>
+  <div>
+    <% if options['facebook_enabled'] == "1" %>
+    Yes
+    <% elsif options['facebook_enabled'] == "2" %>
+    Read Only
+    <% else %>
+    No
+    <% end %>
+  </div>
+  <div class="separator"></div>
+<% end %>
+
+<% if (allow_twitter || is_root)%>
+  <div class="infotitle">Enable Twitter</div>
+  <div>
+    <% if options['twitter_enabled'] == "1" %>
+    Yes
+    <% elsif options['twitter_enabled'] == "2" %>
+    Read Only
+    <% else %>
+    No
+    <% end %>
+  </div>
+  <div class="separator"></div>
+  
+  <% if options['twitter_user'] %>
+  <div class="infotitle">Twitter Reply To</div>
+  <div><%= options['twitter_user'] %></div>
+  <div class="separator"></div>
+  <% end %>
+
+  <% if options['twitter_tags'] %>
+  <div class="infotitle">Twitter hashtag(s)</div>
+  <div><%= options['twitter_tags'] %></div>
+  <div class="separator"></div>
+  <% end %>
+
+  <% if options['twitter_search'] %>
+  <div class="infotitle">Twitter Reader Search Parameters</div>
+  <div><%= options['twitter_search'] %></div>
+  <% end %>
+<% end %>
+
+  <% if @video.smilTexts_count > 0 %>
+      <div class="separator"></div>
+      <div class="infotitle">Posts</div>
+      <div><%= link_to "#{@video.smilTexts_count}", video_smilTexts_path(@video) %></div>
+  <% end %>
+
+  <% if @video.areas.count > 0 %>
+      <div class="separator"></div>
+      <div class="infotitle">Hotspots</div>
+      <div><%= link_to "#{@video.areas_count}", video_areas_path(@video) %></div>
+  <% end %>
+
+  <div class="pagination" style="text-align: center; margin-top:20px;">
+    <%= link_to 'Edit', edit_video_path(@video), {:target => "_parent"} %>
+    <%= link_to 'Moderate', video_smilTexts_path(@video), {:target => "_parent"} if ( (@video.smilTexts_count > 0 || @video.areas_count > 0) ) %>
+    <%= link_to 'Delete', @video, :confirm => 'Are you sure?', :method => :delete if is_root %>
+  </div>
+
+  <% if params[:view] != "inline" %>
+      </div>
+      </div>
+  <% end %>
+
+<% if params[:view] == "inline" %>
+<script type="text/javascript">
+    // Resize this iframe based on content height
+    $(window).load(function() {
+        parent.resizeIframe($('#infoview').height());
+    });
+</script>
+<% end %>

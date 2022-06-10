@@ -1,0 +1,85 @@
+<% @page_title = "Media List - Mobdub" %>
+<div id="itemMain">
+  <div id="menu">
+    <%= render :partial => '/shared/admin_nav', :locals => {:current_view => "videos"} %>
+    <div id="itemNav" class="itemNav">
+      <div id="searchFilter">
+        <% @search.created_at_greater_than_or_equal_to = @search.created_at_greater_than_or_equal_to.to_date if @search.created_at_greater_than_or_equal_to %>
+        <% form_for @search,  :html => {:id => "search"}, :url => partner_videos_path(@partner) do |f| %>
+            Search <%= f.text_field :title_like, :value => @search.uri_like %>
+            <!-- Source <%= f.select :media_type_id, search_media_source_filter_list, :include_blank => "All" %> -->
+            Type <%= f.select :media_type_id, search_media_type_filter_list, :include_blank => "All" %>
+            Date <%= f.select :created_at_greater_than_or_equal_to, search_date_filter_list %>
+            <span class="pagination searchBox"><%= link_to_function "Show", "$('form#search').submit()" %></span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <div id="itemList">
+    <div class="dashboardHeader">Most Recent Media</div>
+    <table class="contentTable">
+      <tr valign="bottom">
+        <th width="22"><%= order @search, :by => :title, :as => "Title", :params => { :partner_id => @partner.id } %></th>
+        <th width="80%"></th>
+        <th class="dateHeader"><%= order @search, :by => :created_at, :as => "Date", :params => { :partner_id => @partner.id } %></th>
+        <th width="50" style="text-align:center;"><%= order @search, :by => :smilTexts_count, :as => "Posts", :params => { :partner_id => @partner.id } %></th>
+        <th width="58" style="text-align:center;"><%= order @search, :by => :areas_count, :as => "Hotspots", :params => {:partner_id => @partner.id } %></th>
+        <th width="60"></th>
+        <th width="40"></th>
+      </tr>
+
+      <% for video in @videos %>
+          <tr class="highlight <%= cycle('row1', 'row2') %>" onclick="showDetails(this, '<%= video_path(video) %>?view=inline', '<%= Ref::MEDIA_TYPES.index(video.media_type_id).to_s.capitalize() %>');"
+              <% if @videos.first %> id="firstItem"
+              <% end %>>
+            <td><img alt="<%= Ref::MEDIA_TYPES.index(video.media_type_id).to_s %>" title="<%= Ref::MEDIA_TYPES.index(video.media_type_id).to_s.capitalize %>" src="/images/type_<%= Ref::MEDIA_TYPES.index(video.media_type_id).to_s %>.png" /></td>
+            <td valign="middle"><span class="itemLink"><%= link_to html_escape(video.title), video_path(video) %></span></td>
+            <td>
+              <div class="date"><%= video.created_at %></div>
+            </td>
+            <td style="text-align:center;"><%= link_to "#{video.smilTexts_count}", video_smilTexts_path(video) if (video.smilTexts_count > 0 ) %></td>
+            <td style="text-align:center;"><%= link_to "#{video.areas_count}", video_areas_path(video) if (video.areas_count > 0) %></td>           
+            <td style="text-align:center;"><%= link_to 'Moderate', video_smilTexts_path(video) if ( (video.smilTexts_count > 0 || video.areas_count > 0) ) %></td>
+            <td style="text-align:center;"><%= link_to 'Edit', edit_video_path(video) %></td>
+          </tr>
+      <% end %>
+      <tr>
+        <td align="left" colspan="8"><%= will_paginate @videos %></td>
+      </tr>
+    </table>
+  </div>
+  <%= render :partial => '/shared/footer' %>
+</div>
+
+<div id="itemDetails">
+  <div class='trailing' style="background-color:#ffffff">
+    <div id="itemDetailsNav" class="itemNav itemDetailsNav">Media Details</div>
+    <iframe id="itemFrame" width="100%" height="940" marginwidth="0" marginheight="0" frameborder="0" scrolling="no"></iframe>
+  </div>
+</div>
+
+<script>
+
+    $(document).ready(function() {
+        <% if @search.count > 0 %>
+        showDetails($("#firstItem"), '<%= video_path(@videos.first) %>?view=inline', '<%= Ref::MEDIA_TYPES.index(@videos.first.media_type_id).to_s.capitalize() %>');
+        <% else %>
+        $(".contentTable").html("<div style='margin-top: 10px'>No content matches your criteria.</div>");
+        <% end %>
+
+		// IE Hack to fix row titles misaligning
+		$("#itemList").css("visibility", "visible");
+		
+        // On form submit - scrub data
+        $('form#search').submit( function()
+        {
+            var search_query = $('#search_title_like').attr('value');
+
+            if (!isNaN(search_query))  // If its an id
+            {
+                $('#search_title_like').replaceWith('<input id="search_uri_like" name="search[uri_like]" type="text" size="30" value="' + search_query + '" />');
+            }
+        });
+    });
+ 
+</script>

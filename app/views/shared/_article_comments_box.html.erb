@@ -1,0 +1,19 @@
+<div id='article_body'></div>
+
+<div id='WNCol2'></div>
+<script type='text/javascript'>
+    var md_config =
+    {
+        'is_admin': true,
+        'domain': '<%= base_url %>',
+        'partner_id': '<%= @partner.id %>',
+        'ref_type': 'S',
+        'ref_md_type': '<%= Ref::MEDIA_TYPES.index(@video.media_type_id).to_s %>',
+        'ref_md_id': '<%= @video.id %>',
+        'comments_layout': 'autogrow',
+        'custom_css_url': '',
+        'comments_enabled': '1',
+        'twitter_enabled': '1'
+    };
+</script>
+<script type='text/javascript' id='md_comments_script' src='/javascripts/mobdub_wn_loader.js?mdCommentsParentDiv=WNCol2'></script>

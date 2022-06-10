@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://www.facebook.com/2008/fbml">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+  <title>Share Comments</title>
+    <link href="/stylesheets/mdlogin.css" media="screen" rel="stylesheet" type="text/css" />    
+	<script type="text/javascript">
+        var mdDomain = document.domain;
+        document.domain = mdDomain.substring(mdDomain.lastIndexOf(".", mdDomain.lastIndexOf(".") - 1) + 1);
+    
+        try
+        {
+            if (parent.md_config.custom_css_url)
+            {
+                mdLoadScript( parent.md_config.custom_css_url, 'custom', 'css' );
+            }
+        }
+        catch(e) {}
+        
+
+		var addthis_share =
+		{
+			url: decodeURIComponent( mdGetQSParam( "mdUrl") ),
+		   	title: decodeURIComponent( mdGetQSParam( "mdTitle") ),
+		   	description: decodeURIComponent( mdGetQSParam( "mdContent") )
+		};
+		
+		function mdShareOnClick( elem )
+		{
+			parent.Mobdub.Util.showShareBox( false );
+		}
+		
+		function mdGetQSParam( paramName )
+		{
+			var url = location.search.substr( 1 )
+			var queryString = new Array();
+			var parms = url.split( "&" );
+		
+			for( var i = 0; i < parms.length; i++ )
+			{
+			    var parm = parms[ i ].split( "=" );
+			    queryString[ parm[0] ] = parm[1];
+			}
+		
+			return queryString[ paramName ];
+		}
+  	</script>
+</head>
+
+<body>
+	<div id="content" style="position:relative; margin-left:30px; margin-top:14px;">
+		<div style="position:absolute; top:-5px; left:282px">
+			<img id="closeWin" style="cursor:pointer" onclick="parent.Mobdub.Util.showShareBox( false );" onmouseout="this.src='http://images.mobdub.com/xDark.png';" onmouseover="this.src='http://images.mobdub.com/xLight.png';" src="/images/xDark.png" />
+		</div>
+		<div class="sectionLabel md-popup-text-header" style="margin-bottom: 18px">Bookmark & Share</div>
+		
+		<div class="addthis_toolbox addthis_default_style addthis_32x32_style">
+		    <div class="two_column">
+		        <div class="column1">
+					<a onclick="parent.Mobdub.Util.showShareBox( false );" class="addthis_button_facebook">Facebook</a>
+					<a onclick="parent.Mobdub.Util.showShareBox( false );" class="addthis_button_delicious">Delicious</a>
+					<a onclick="parent.Mobdub.Util.showShareBox( false );" class="addthis_button_gmail">Gmail</a>
+					<a onclick="parent.Mobdub.Util.showShareBox( false );" class="addthis_button_stumbleupon">StumbleUpon</a>
+					<a onclick="parent.Mobdub.Util.showShareBox( false );" class="addthis_button_myspace">MySpace</a>			
+		        </div>
+		        <div class="column2">
+					<a onclick="parent.Mobdub.Util.showShareBox( false );" class="addthis_button_twitter">Twitter</a>
+					<a onclick="parent.Mobdub.Util.showShareBox( false );" class="addthis_button_digg">Digg</a>
+					<a onclick="parent.Mobdub.Util.showShareBox( false );" class="addthis_button_yahoomail">Yahoo! Mail</a>
+					<a onclick="parent.Mobdub.Util.showShareBox( false );" class="addthis_button_google">Google</a>
+					<a onclick="parent.Mobdub.Util.showShareBox( false );" class="addthis_button_linkedin">LinkedIn</a>
+		        </div>
+		        <!-- <div class="clear"></div> -->
+		        <!-- <div class="more">
+		            <a class="addthis_button_expanded">More Destinations...</a>
+		        </div> -->
+		    </div>
+		</div>
+	</div>
+
+	<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js?pub=xa-XXXXXXXXXXXXXXX"></script>
+
+</body>
+</html>

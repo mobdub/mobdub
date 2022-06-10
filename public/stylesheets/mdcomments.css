@@ -1,0 +1,469 @@
+comment@charset "utf-8";
+
+#MobdubVideoComments html, #MobdubVideoComments body, #MobdubVideoComments div, #MobdubVideoComments span, #MobdubVideoComments applet, #MobdubVideoComments object, #MobdubVideoComments iframe, #MobdubVideoComments h1, #MobdubVideoComments h2, #MobdubVideoComments h3, #MobdubVideoComments h4, #MobdubVideoComments h5, #MobdubVideoComments h6, #MobdubVideoComments p, #MobdubVideoComments blockquote, #MobdubVideoComments pre, #MobdubVideoComments a, #MobdubVideoComments abbr, #MobdubVideoComments acronym, #MobdubVideoComments address, #MobdubVideoComments big, #MobdubVideoComments cite, #MobdubVideoComments code, #MobdubVideoComments del, #MobdubVideoComments dfn, #MobdubVideoComments em, #MobdubVideoComments font, #MobdubVideoComments img, #MobdubVideoComments ins, #MobdubVideoComments kbd, #MobdubVideoComments q, #MobdubVideoComments s, #MobdubVideoComments samp, #MobdubVideoComments small, #MobdubVideoComments strike, #MobdubVideoComments strong, #MobdubVideoComments sub, #MobdubVideoComments sup, #MobdubVideoComments tt, #MobdubVideoComments var, #MobdubVideoComments b, #MobdubVideoComments u, #MobdubVideoComments i, #MobdubVideoComments center,
+#MobdubVideoComments dl, #MobdubVideoComments dt, #MobdubVideoComments dd, #MobdubVideoComments ol, #MobdubVideoComments ul, #MobdubVideoComments li,
+#MobdubVideoComments fieldset, #MobdubVideoComments form, #MobdubVideoComments label, #MobdubVideoComments legend, #MobdubVideoComments table, #MobdubVideoComments caption, #MobdubVideoComments tbody, #MobdubVideoComments tfoot, #MobdubVideoComments thead, #MobdubVideoComments tr, #MobdubVideoComments th, #MobdubVideoComments td {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    font-size: 100%;
+    vertical-align: baseline;
+    background: transparent;
+}
+
+#MobdubVideoComments body {
+    line-height: 1.0;
+}
+
+#MobdubVideoComments ol, #MobdubVideoComments ul {
+    list-style: none;
+}
+
+#MobdubVideoComments blockquote, #MobdubVideoComments q {
+    quotes: none;
+}
+
+#MobdubVideoComments blockquote:before, #MobdubVideoComments blockquote:after,
+#MobdubVideoComments q:before, #MobdubVideoComments q:after {
+    content: '';
+    content: none;
+}
+
+/* remember to define focus styles! */
+#MobdubVideoComments :focus {
+    outline: 0;
+}
+
+/* remember to highlight inserts somehow! */
+#MobdubVideoComments ins {
+    text-decoration: none;
+}
+
+#MobdubVideoComments del {
+    text-decoration: line-through;
+}
+
+/* tables still need 'cellspacing="0"' in the markup */
+#MobdubVideoComments table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/*
+div , span ,a , form  , ul
+li , textarea  ,  strong , input
+br ,img  few more tags are used .
+*/
+#MobdubVideoComments textarea {
+    outline: none;
+}
+
+#MobdubVideoComments {
+    font-size: 12px !important;
+}
+
+#MobdubVideoComments div, #MobdubVideoComments span {
+    font-size: 1em !important;
+}
+
+/* Links */
+#MobdubVideoComments .md-text-link {
+    font-size: 1em !important;
+    color: #999999 !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    outline: none !important;
+}
+#MobdubVideoComments a:hover.md-text-link {
+    text-decoration: underline !important;
+}
+
+#MobdubVideoComments .md-text-link-incomment {
+    font-size: 1em !important;
+    color: #0099B9 !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    outline: none !important;
+}
+#MobdubVideoComments a:hover.md-text-link-incomment {
+    text-decoration: underline !important;
+}
+
+#MobdubVideoComments .md-text-tab-link {
+    color: #999999 !important;
+    font-size: 1.0em !important;
+}
+#MobdubVideoComments a:hover.md-text-tab-link  {
+    color: #999999 !important;
+    cursor: pointer !important;
+}
+
+#MobdubVideoComments .md-text-tab-active, #MobdubVideoComments a.md-text-tab-active, #MobdubVideoComments a.md-text-tab-active:hover, #MobdubVideoComments a.md-text-tab-active:visited {
+    color: #999999 !important;
+    text-decoration: none !important;
+    font-size: 1.0em !important;
+    cursor: default !important;
+}
+
+#MobdubVideoComments .md-text-link-disabled, #MobdubVideoComments a:hover.md-text-link-disabled, #MobdubVideoComments a:visited.md-text-link-disabled {
+    font-size: 1em !important;
+    text-decoration: none !important;
+    color: #999999 !important;
+    cursor: default !important;
+    outline: none !important;
+}
+
+#MobdubVideoComments .defaultViewerText {
+    text-align:center !important;
+    margin-top:35px !important;
+    font-size:3.5em !important;
+    font-weight:bold !important;
+    color:#F0F0F0 !important;
+}
+
+#MobdubVideoComments .defaultViewerText-article {
+    border-bottom: 1px dashed #CCCCCC;
+    padding-bottom: 30px;
+    margin-top:20px !important;
+}
+
+#MobdubVideoComments .inputBox {
+    color: #999999;
+    width: 84%;
+    overflow: hidden;
+    resize: none;
+    border: 0 none;
+    margin: 1px;
+    height: 16px;
+    padding: 0 !important;
+    outline: none !important;
+}
+
+#MobdubVideoComments .vdoCommentMain {
+    text-align: left;
+    font-size: 12px !important;
+    color: #999999;
+    background-color: #FFFFFF;
+    padding: 5px 0 0 0;
+    position: relative;
+}
+
+#MobdubVideoComments .vdoCommentNew {
+    text-align: left;
+    width: 100%;
+}
+
+#MobdubVideoComments .vdoCommentSectionMain {
+    text-align: left; /*height:400px ;*/
+    padding: 13px 10px 13px 10px;
+    overflow: hidden;
+    border: 1px solid #CCCCCC;
+    position: relative;
+}
+
+#MobdubVideoComments .ui-corner-re {
+    border-radius: 10px;
+    -moz-border-radius: 10px !important;
+    -webkit-border-radius: 10px !important;
+
+}
+
+#MobdubVideoComments .ui-corner-rs {
+    border-radius: 4px;
+    -moz-border-radius: 4px !important;
+    -webkit-border-radius: 4px !important;
+}
+
+#MobdubVideoComments #content-slider {
+    width: 8px;
+    height: 100%;
+    position: relative;
+    float: right;
+    cursor: pointer !important;
+}
+
+#MobdubVideoComments .ui-slider-handle, #MobdubVideoComments .ui-slider-handle a, #MobdubVideoComments .ui-slider-handle a:hover {
+    font-size: 0.75em !important;
+    width: 1.3em !important;
+    height: 1.3em !important;
+    left: -0.3em !important;
+    margin-bottom: -4px !important;
+    background: #999999 !important;
+    cursor: pointer !important;
+}
+
+#MobdubVideoComments .vdoCommentSection {
+    position: relative;
+    text-align: left; /*width: 600px;*/
+    height: 100%;
+    overflow: hidden;
+    float: left;
+    width: 100%; /* added for dynamic width support */
+}
+
+#MobdubVideoComments .vdoComment {
+    position: relative ! important; /* IE7 fix */
+    text-align: left;
+    width: 100%;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    border-left: 0 none !important;
+    border-right: 0 none !important;
+    border-top: 0 none !important;
+    border-bottom-width: 1px !important;
+    border-bottom-style: dashed !important;;
+}
+
+#MobdubVideoComments .vdoCommentHighLight {
+    background: repeat fixed #F2F2F2;
+}
+
+#MobdubVideoComments .vdoCommentHeader {
+    font-size: 1.0em;
+    height: 20px;
+    width: 100%;
+    padding-top: 5px;
+}
+
+#MobdubVideoComments .twitterComment {
+    position: relative;
+    width: 100%;
+    padding-top: 0;
+    min-height:48px;
+}
+
+#MobdubVideoComments .vdoCommentDate {
+    font-size: 0.9em;
+}
+
+#MobdubVideoComments .vdoCommentUserId {
+    margin: 0;
+    font-size: 1.0em !important;
+    font-weight: bold; /*color:#0099B9 !important;*/
+}
+
+#MobdubVideoComments .md-text-rating-positive {
+    font-size: 1.24em !important;
+    color: #CDD19E;
+    vertical-align: top;
+}
+
+#MobdubVideoComments .md-text-rating-zero {
+    font-size: 1.24em !important;
+    color: #f15a24;
+    vertical-align: top;
+}
+
+#MobdubVideoComments .md-text-rating-negative {
+    font-size: 1.24em !important;
+    color: #f15a24;
+    vertical-align: top;
+}
+
+#MobdubVideoComments .vdoCommentTimeStamp {
+    font-weight: bold;
+}
+
+#MobdubVideoComments .vdoCommentBody {
+    margin: 0 7em 0 9.75em !important;
+    font-size: 1.0em !important;
+    padding: 0 0 0 3px !important;
+    word-wrap: break-word;
+    text-align: left !important;
+}
+
+#MobdubVideoComments .fbCommentBody {
+    color: #666666;
+    font-size: 1.0em !important;
+    padding-bottom: 7px;
+    word-wrap: break-word;
+}
+
+#MobdubVideoComments .twtCommentBody {
+    color: #666666;
+    margin: 0 0 0 5.5em !important;
+    font-size: 1.0em !important;
+    padding-bottom: 0 !important;
+    word-wrap: break-word;
+}
+
+#MobdubVideoComments .md-text-twt-comment {
+    color: #666666;
+    word-wrap: break-word;
+}
+
+#MobdubVideoComments .md-text-tos {
+/*height: 28px;*/
+    min-height: 11px;
+    font-size: 0.89em !important;
+    display: none;
+}
+
+#termOfServceText
+{
+    float:left !important;
+    padding-left:8px !important;
+    padding-right:8px !important;
+    font-size: 0.89em !important;
+    text-align:left !important;
+}
+
+#MobdubVideoComments .mdTwitterImg {
+    float: left;
+    margin-right: 10px;
+    height: 48px;
+    width: 48px;
+    border: 0 none;
+}
+
+#MobdubVideoComments #submitBox {
+    float:right;
+}
+
+#MobdubVideoComments .md-text-charcount {
+    font-family: Georgia !important;
+    font-size: 1.69em !important;
+    color: #CCCCCC !important;
+    text-align: center;
+    width: 60px;
+    line-height: 29px;
+}
+
+#MobdubVideoComments .md-text-charcount-overlimit {
+    color: #b22222 !important;
+}
+
+#MobdubVideoComments .btnSubmitComment {
+    height: 18px;
+    width: 60px;
+    background: url(http://images.mobdub.com/submitDark.png) no-repeat;
+}
+
+#MobdubVideoComments .vdoCommentFooter {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+#MobdubVideoComments .img {
+    border: 0;
+}
+
+#MobdubVideoComments .inputTxt {
+    width: 200px;
+    height: 14px;
+    margin: 3px;
+    font-family: Arial;
+}
+
+#MobdubVideoComments .shareflag {
+    font-size: 0.9em !important;
+    font-weight: bold;
+}
+
+#MobdubVideoComments .widget {
+    background-image: none !important;
+    /* color: #999999 !important; */
+}
+
+#MobdubVideoComments .md-text {
+    color: #999999 !important;
+}
+
+#MobdubVideoComments .thumbsupdown {
+    margin: 0 2px 3px 3px;
+}
+
+#MobdubVideoComments .vdoCommentContainer {
+    padding: 0 !important;
+    position: relative;
+}
+
+#MobdubVideoComments .commentRating {
+    float: right;
+    margin-left: 0px;
+    text-align: right;
+}
+
+#MobdubVideoComments #leftHeader {
+    position: absolute;
+    left: 2px;
+    top: 0;
+    padding-left: 1px;
+    text-align: left;
+    vertical-align: top;
+    overflow: hidden;
+    width: 115px;
+
+}
+
+#MobdubVideoComments #logintext
+{
+    float:right;
+    padding-right: 4px;
+    padding-bottom: 5px;
+    font-size: 0.95em !important;
+    font-family: Arial !important;
+}
+
+#MobdubVideoComments #annotationsSwitch
+{
+    cursor: default !important;
+    text-decoration: none !important;
+    outline: none !important;
+}
+#MobdubVideoComments a:hover#annotationsSwitch
+{
+    color: #999999 !important;
+    text-decoration: none !important;
+}
+
+#vdoCommentNew, #vdoCommentNew form, #vdoCommentNew #tabs { position: relative; }
+
+#MobdubVideoComments .md-link-more
+{
+    text-align:center;
+    text-shadow:white 1px 1px 1px;
+    color: #999999;
+    font-size:1.2em;
+    font-weight:bold;
+    background-color: #f3f3f3;
+    padding:6px 0;
+    margin-top: 10px;
+    border:1px solid #EAEAEA;
+    border-radius: 5px;
+    -moz-border-radius: 5px !important;
+    -webkit-border-radius: 5px !important;
+    width:99%;
+    height:16px;
+    cursor:pointer;
+}
+
+#md-tabs
+{
+    padding-bottom: 6px;
+}
+.md-comments-type-text
+{
+    padding-top: 12px !important;
+    border-top: 2px solid #A0A0A0;
+}
+#mobdubReaderControls
+{
+    padding:2px;
+    padding-bottom: 8px;
+    height: 21px;
+    border-bottom: 1px dashed #CCCCCC;
+}
+#mobdubReaderInfo
+{
+    width:200px;
+    float:left;
+    font-weight: bold;
+    padding-bottom:6px;
+}
+#mdCommentsFilter
+{
+    float: right;
+    font-size:0.9em !important;
+}
